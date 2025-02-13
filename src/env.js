@@ -17,8 +17,6 @@ export const env = createEnv({
     POSTGRES_PASSWORD: z.string(),
     JWT_SECRET: z.string(),
     JWT_REFRESH_SECRET: z.string(),
-    JWT_EXPIRES_IN: z.string(),
-    JWT_REFRESH_EXPIRES_IN: z.string(),
   },
 
   /**
@@ -43,8 +41,6 @@ export const env = createEnv({
     POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
     JWT_SECRET: process.env.JWT_SECRET,
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
-    JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
-    JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
