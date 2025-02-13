@@ -13,6 +13,7 @@ const globalForDb = globalThis as unknown as {
 };
 
 const DATABASE_URL = `postgres://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DBNAME}`;
+
 const conn = globalForDb.conn ?? postgres(DATABASE_URL);
 if (env.NODE_ENV !== "production") globalForDb.conn = conn;
 

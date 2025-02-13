@@ -2,12 +2,15 @@ import { type Config } from "drizzle-kit";
 
 import { env } from "@/env";
 
-const DATABASE_URL = `postgres://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DBNAME}`;
-
 export default {
   schema: "./src/server/db/schema.ts",
   dialect: "postgresql",
   dbCredentials: {
-    url: DATABASE_URL,
+    host: env.POSTGRES_HOST,
+    port: env.POSTGRES_PORT,
+    user: env.POSTGRES_USER,
+    password: env.POSTGRES_PASSWORD,
+    database: env.POSTGRES_DBNAME,
+    ssl: env.NODE_ENV === "production",
   },
 } satisfies Config;

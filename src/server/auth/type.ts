@@ -26,6 +26,6 @@ export type RefreshTokenResponseDTO = z.infer<
 >;
 
 export const logoutRequestSchema = z.object({
-  refreshToken: z.string(),
+  userId: z.string(),
 });
 export type LogoutRequestDTO = z.infer<typeof logoutRequestSchema>;

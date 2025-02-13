@@ -4,15 +4,13 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_HOST: "fe-isi-test-nizar-izzuddin-yatim-fadlan-db"
       POSTGRES_PORT: ${POSTGRES_PORT}
       POSTGRES_DBNAME: ${POSTGRES_DBNAME}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
-      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
     restart: always
     working_dir: /app
     ports:

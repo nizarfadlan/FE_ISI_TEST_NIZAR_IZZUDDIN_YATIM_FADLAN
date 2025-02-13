@@ -1,8 +1,6 @@
 import { env } from "@/env";
 import { db } from "../db";
 import { refreshToken, users } from "../db/schema";
-import { eq } from "drizzle-orm";
-import { compare } from "bcryptjs";
 import { signJwt, verifyJwt, type JwtPayload } from "@/utils/jwt";
 import { JWT_EXPIRATION, JWT_EXPIRATION_REFRESH } from "@/constant";
 import type {
@@ -12,6 +10,11 @@ import type {
   RefreshTokenRequestDTO,
   RefreshTokenResponseDTO,
 } from "./type";
+import { comparePassword } from "@/utils/bcrypt";
+import { ClientError } from "@/utils/error";
+import { HttpStatus } from "@/types/httpStatus.enum";
+import { eq } from "drizzle-orm";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const secret = new TextEncoder().encode(env.JWT_SECRET);
 const secretRefresh = new TextEncoder().encode(env.JWT_REFRESH_SECRET);
@@ -26,13 +29,13 @@ export async function loginUser(
   });
 
   if (!user) {
-    throw new Error("Invalid credentials");
+    throw new ClientError("Invalid credentials", HttpStatus.BAD_REQUEST);
   }
 
-  const check = await compare(password, user.password);
+  const check = await comparePassword(password, user.password);
 
   if (!check) {
-    throw new Error("Invalid credentials");
+    throw new ClientError("Invalid credentials", HttpStatus.BAD_REQUEST);
   }
 
   const payload: JwtPayload = { userId: user.id, role: user.role };
@@ -61,25 +64,26 @@ export async function refreshUserToken(
 ): Promise<RefreshTokenResponseDTO> {
   const { refreshToken: token } = data;
 
-  const verifyToken = (await verifyJwt(token, secretRefresh)) as JwtPayload;
+  const verifyToken = (await verifyJwt(token, secretRefresh))!;
   if (!verifyToken) {
-    throw new Error("Invalid token");
+    throw new ClientError("Invalid token", HttpStatus.BAD_REQUEST);
   }
 
   const storedToken = await db.query.refreshToken.findFirst({
     where: eq(refreshToken.token, token),
   });
   if (!storedToken) {
-    throw new Error("Invalid token");
+    throw new ClientError("Invalid token", HttpStatus.BAD_REQUEST);
   }
 
   const user = await db.query.users.findFirst({
     where: eq(users.id, verifyToken.userId),
   });
   if (!user) {
-    throw new Error("User not found");
+    throw new ClientError("User not found", HttpStatus.NOT_FOUND);
   }
 
+  useAuthStore.setState({ user });
   await db.delete(refreshToken).where(eq(refreshToken.token, refreshToken));
 
   const payload: JwtPayload = { userId: user.id, role: user.role };
@@ -104,10 +108,17 @@ export async function refreshUserToken(
 }
 
 export async function logoutUser(data: LogoutRequestDTO) {
-  const { refreshToken: token } = data;
-  if (!token) {
-    throw new Error("Not logged in");
+  const { userId } = data;
+
+  await db.delete(refreshToken).where(eq(refreshToken.userId, userId));
+}
+
+export async function verifyAccessToken(token: string): Promise<JwtPayload> {
+  const verify = await verifyJwt(token, secret);
+
+  if (!verify) {
+    throw new ClientError("Invalid or expired token", HttpStatus.UNAUTHORIZED);
   }
 
-  await db.delete(refreshToken).where(eq(refreshToken.token, token));
+  return verify;
 }

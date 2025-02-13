@@ -1,15 +1,17 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
 import {
   integer,
   pgEnum,
   pgTable,
   text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { v7 as uuidv7 } from "uuid";
+import { createSelectSchema } from "drizzle-zod";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -27,28 +29,30 @@ export const taskStatusEnum = pgEnum("task_status", [
 ]);
 
 export const users = pgTable("users", {
-  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  id: uuid("id").primaryKey().$defaultFn(uuidv7),
   name: varchar("name", { length: 50 }).notNull(),
   username: varchar("username", { length: 25 }).unique().notNull(),
   password: text("password").notNull(),
   role: roleEnum("role").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP`)
+    .defaultNow()
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-    () => new Date(),
-  ),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
+export const userSelectSchema = createSelectSchema(users);
+
 export const tasks = pgTable("tasks", {
-  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  id: uuid("id").primaryKey().$defaultFn(uuidv7),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   status: taskStatusEnum("status").default("not_started").notNull(),
-  leadId: integer("lead_id")
+  createdById: uuid("created_by_id")
     .references(() => users.id)
     .notNull(),
-  teamId: integer("team_id").references(() => users.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -60,10 +64,10 @@ export const tasks = pgTable("tasks", {
 
 export const taskLogs = pgTable("task_logs", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-  taskId: integer("task_id")
+  taskId: uuid("task_id")
     .references(() => tasks.id)
     .notNull(),
-  userId: integer("user_id")
+  userId: uuid("user_id")
     .references(() => users.id)
     .notNull(),
   action: text("action").notNull(),
@@ -74,7 +78,7 @@ export const taskLogs = pgTable("task_logs", {
 
 export const refreshToken = pgTable("refresh_token", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-  userId: integer("user_id")
+  userId: uuid("user_id")
     .references(() => users.id)
     .notNull(),
   token: text("token").unique().notNull(),
