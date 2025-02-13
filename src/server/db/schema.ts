@@ -5,7 +5,7 @@ import { sql } from "drizzle-orm";
 import {
   integer,
   pgEnum,
-  pgTableCreator,
+  pgTable,
   text,
   timestamp,
   varchar,
@@ -17,9 +17,6 @@ import {
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator(
-  (name) => `fe_isi_test_nizar_izzuddin_yatim_fadlan_${name}`,
-);
 
 export const roleEnum = pgEnum("role", ["lead", "team"]);
 export const taskStatusEnum = pgEnum("task_status", [
@@ -29,7 +26,7 @@ export const taskStatusEnum = pgEnum("task_status", [
   "reject",
 ]);
 
-export const users = createTable("users", {
+export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
   name: varchar("name", { length: 50 }).notNull(),
   username: varchar("username", { length: 25 }).unique().notNull(),
@@ -43,7 +40,7 @@ export const users = createTable("users", {
   ),
 });
 
-export const tasks = createTable("tasks", {
+export const tasks = pgTable("tasks", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
@@ -61,7 +58,7 @@ export const tasks = createTable("tasks", {
     .$onUpdate(() => new Date()),
 });
 
-export const taskLogs = createTable("task_logs", {
+export const taskLogs = pgTable("task_logs", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
   taskId: integer("task_id")
     .references(() => tasks.id)
@@ -75,7 +72,7 @@ export const taskLogs = createTable("task_logs", {
     .notNull(),
 });
 
-export const refreshToken = createTable("refresh_token", {
+export const refreshToken = pgTable("refresh_token", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
   userId: integer("user_id")
     .references(() => users.id)

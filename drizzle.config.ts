@@ -10,5 +10,4 @@ export default {
   dbCredentials: {
     url: DATABASE_URL,
   },
-  tablesFilter: ["fe_isi_test_nizar_izzuddin_yatim_fadlan_*"],
 } satisfies Config;
