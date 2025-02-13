@@ -1,0 +1,45 @@
+services:
+  fe-isi-test-nizar-izzuddin-yatim-fadlan-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DBNAME: ${POSTGRES_DBNAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
+    restart: always
+    working_dir: /app
+    ports:
+      - 3000:3000
+    depends_on:
+      - fe-isi-test-nizar-izzuddin-yatim-fadlan-db
+    networks:
+      - fe-isi-test-network
+
+  fe-isi-test-nizar-izzuddin-yatim-fadlan-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DBNAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 127.0.0.1:5434:5432
+    restart: always
+    networks:
+      - fe-isi-test-network
+    volumes:
+      - fe-isi-test-db-data:/var/lib/postgresql/data
+
+networks:
+  fe-isi-test-network:
+    driver: bridge
+
+volumes:
+  fe-isi-test-db-data:
+    driver: local

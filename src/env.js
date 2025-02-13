@@ -7,10 +7,18 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    POSTGRES_HOST: z.string(),
+    POSTGRES_PORT: z.coerce.number().default(5432),
+    POSTGRES_DBNAME: z.string(),
+    POSTGRES_USER: z.string(),
+    POSTGRES_PASSWORD: z.string(),
+    JWT_SECRET: z.string(),
+    JWT_REFRESH_SECRET: z.string(),
+    JWT_EXPIRES_IN: z.string(),
+    JWT_REFRESH_EXPIRES_IN: z.string(),
   },
 
   /**
@@ -27,8 +35,16 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    POSTGRES_HOST: process.env.POSTGRES_HOST,
+    POSTGRES_PORT: process.env.POSTGRES_PORT,
+    POSTGRES_DBNAME: process.env.POSTGRES_DBNAME,
+    POSTGRES_USER: process.env.POSTGRES_USER,
+    POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
+    JWT_SECRET: process.env.JWT_SECRET,
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
+    JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
+    JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
