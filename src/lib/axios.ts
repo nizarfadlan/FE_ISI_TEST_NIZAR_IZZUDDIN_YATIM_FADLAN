@@ -136,3 +136,31 @@ class ApiClient {
 }
 
 export const api = ApiClient.getInstance().getApi();
+
+export async function apiCall<T>(
+  promise: Promise<AxiosResponse<ApiResponse<T>>>,
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await promise;
+    const data = response.data as ApiResponse<unknown>;
+
+    if ("success" in data && !data.success) {
+      throw new ClientError(
+        data.error.message || "Terjadi kesalahan",
+        data.error.status,
+        data.error.details,
+      );
+    }
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof ClientError) {
+      throw error;
+    }
+
+    throw new ClientError(
+      "Terjadi kesalahan yang tidak diketahui",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+}

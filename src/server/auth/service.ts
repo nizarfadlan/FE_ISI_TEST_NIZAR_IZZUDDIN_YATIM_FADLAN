@@ -2,7 +2,11 @@ import { env } from "@/env";
 import { db } from "../db";
 import { refreshToken, users } from "../db/schema";
 import { signJwt, verifyJwt, type JwtPayload } from "@/utils/jwt";
-import { JWT_EXPIRATION, JWT_EXPIRATION_REFRESH } from "@/constant";
+import {
+  COOKIE_ACCESS_TOKEN,
+  JWT_EXPIRATION,
+  JWT_EXPIRATION_REFRESH,
+} from "@/constant";
 import type {
   LoginFormRequestDTO,
   LoginFormResponseDTO,
@@ -14,7 +18,8 @@ import { comparePassword } from "@/utils/bcrypt";
 import { ClientError } from "@/utils/error";
 import { HttpStatus } from "@/types/httpStatus.enum";
 import { eq } from "drizzle-orm";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { cookies } from "next/headers";
 
 const secret = new TextEncoder().encode(env.JWT_SECRET);
 const secretRefresh = new TextEncoder().encode(env.JWT_REFRESH_SECRET);
@@ -121,4 +126,9 @@ export async function verifyAccessToken(token: string): Promise<JwtPayload> {
   }
 
   return verify;
+}
+
+export async function hasAccessToken() {
+  const cookieStore = await cookies();
+  return cookieStore.has(COOKIE_ACCESS_TOKEN);
 }

@@ -1,8 +1,11 @@
 "use client";
 
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useForm } from "react-hook-form";
 import Loading from "../loading";
+import { Input } from "../input";
+import { Button } from "../button";
+import { Label } from "../label";
 
 interface FormData {
   username: string;
@@ -21,8 +24,8 @@ export default function AuthForm() {
     await login(data.username, data.password);
   };
 
-  if (loading) {
-    return <Loading text="Logging in..." />;
+  if (loading.auth) {
+    return <Loading text="Logging in..." className="text-black" />;
   }
 
   if (user) {
@@ -35,29 +38,30 @@ export default function AuthForm() {
   }
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label>Username</label>
-          <input
-            {...register("username", { required: "Username is required" })}
-            placeholder="Enter your username"
-          />
-          {errors.username && <p>{errors.username.message}</p>}
-        </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            {...register("password", { required: "Password is required" })}
-            placeholder="Enter your password"
-          />
-          {errors.password && <p>{errors.password.message}</p>}
-        </div>
-        <button type="submit">Login</button>
-      </form>
-    </div>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="mb-4 space-y-6 rounded-lg bg-white px-8 pb-8 pt-6 shadow-lg"
+    >
+      <div>
+        <Label htmlFor="username">Username</Label>
+        <Input
+          {...register("username", { required: "Username is required" })}
+        />
+        {errors.username && <p>{errors.username.message}</p>}
+      </div>
+      <div>
+        <Label htmlFor="password">Password</Label>
+        <Input
+          type="password"
+          {...register("password", { required: "Password is required" })}
+        />
+        {errors.password && <p>{errors.password.message}</p>}
+      </div>
+      <div>
+        <Button type="submit" className="w-full">
+          Sign In
+        </Button>
+      </div>
+    </form>
   );
 }
