@@ -3,9 +3,10 @@
 
 import { sql } from "drizzle-orm";
 import {
-  index,
   integer,
+  pgEnum,
   pgTableCreator,
+  text,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -16,21 +17,72 @@ import {
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `fe_isi_test_nizar_izzuddin_yatim_fadlan_${name}`);
-
-export const posts = createTable(
-  "post",
-  {
-    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
-    ),
-  },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
+export const createTable = pgTableCreator(
+  (name) => `fe_isi_test_nizar_izzuddin_yatim_fadlan_${name}`,
 );
+
+export const roleEnum = pgEnum("role", ["lead", "team"]);
+export const taskStatusEnum = pgEnum("task_status", [
+  "not_started",
+  "on_progress",
+  "done",
+  "reject",
+]);
+
+export const users = createTable("users", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  name: varchar("name", { length: 50 }).notNull(),
+  username: varchar("username", { length: 25 }).unique().notNull(),
+  password: text("password").notNull(),
+  role: roleEnum("role").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const tasks = createTable("tasks", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  status: taskStatusEnum("status").default("not_started").notNull(),
+  leadId: integer("lead_id")
+    .references(() => users.id)
+    .notNull(),
+  teamId: integer("team_id").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const taskLogs = createTable("task_logs", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  taskId: integer("task_id")
+    .references(() => tasks.id)
+    .notNull(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  action: text("action").notNull(),
+  timestamp: timestamp("timestamp", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const refreshToken = createTable("refresh_token", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  token: text("token").unique().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
