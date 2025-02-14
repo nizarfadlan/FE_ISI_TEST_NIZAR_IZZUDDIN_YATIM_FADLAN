@@ -6,6 +6,7 @@ export const createTaskRequestSchema = taskInsertSchema.omit({
   createdById: true,
   createdAt: true,
   updatedAt: true,
+  deletedAt: true,
 });
 export type CreateTaskRequestDTO = z.infer<typeof createTaskRequestSchema>;
 

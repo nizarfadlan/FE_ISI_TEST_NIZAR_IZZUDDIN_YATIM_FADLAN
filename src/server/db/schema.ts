@@ -17,6 +17,7 @@ import {
   createUpdateSchema,
 } from "drizzle-zod";
 import type { z } from "zod";
+import { relations } from "drizzle-orm";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -52,6 +53,12 @@ export const users = pgTable("users", {
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
 
+export const usersRelations = relations(users, ({ many }) => ({
+  tasks: many(tasks),
+  taskLogs: many(taskLogs),
+  refreshTokens: many(refreshToken),
+}));
+
 export const userSelectSchema = createSelectSchema(users);
 export const userInsertSchema = createInsertSchema(users);
 export const userUpdateSchema = createUpdateSchema(users);
@@ -76,6 +83,14 @@ export const tasks = pgTable("tasks", {
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
 
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [tasks.createdById],
+    references: [users.id],
+  }),
+  taskLogs: many(taskLogs),
+}));
+
 export const taskSelectSchema = createSelectSchema(tasks);
 export const taskInsertSchema = createInsertSchema(tasks);
 export const taskUpdateSchema = createUpdateSchema(tasks);
@@ -90,11 +105,25 @@ export const taskLogs = pgTable("task_logs", {
   userId: uuid("user_id")
     .references(() => users.id)
     .notNull(),
+  title: varchar("title", { length: 255 }),
+  description: text("description"),
+  status: taskStatusEnum("status"),
   action: text("action").notNull(),
   timestamp: timestamp("timestamp", { withTimezone: true })
     .defaultNow()
     .notNull(),
 });
+
+export const taskLogsRelations = relations(taskLogs, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskLogs.taskId],
+    references: [tasks.id],
+  }),
+  user: one(users, {
+    fields: [taskLogs.userId],
+    references: [users.id],
+  }),
+}));
 
 export const taskLogInsertSchema = createInsertSchema(taskLogs);
 export type InsertTaskLog = z.infer<typeof taskLogInsertSchema>;
@@ -110,3 +139,10 @@ export const refreshToken = pgTable("refresh_token", {
     .notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
+
+export const refreshTokenRelations = relations(refreshToken, ({ one }) => ({
+  user: one(users, {
+    fields: [refreshToken.userId],
+    references: [users.id],
+  }),
+}));

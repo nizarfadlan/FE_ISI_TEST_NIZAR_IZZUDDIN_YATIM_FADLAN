@@ -41,6 +41,7 @@ export async function createTask(
   }
 
   await createTaskLog({
+    ...data,
     taskId: task.id,
     userId,
     action: "create",
@@ -73,6 +74,7 @@ export async function updateTask(
   await Promise.all([
     db.update(tasks).set(data).where(eq(tasks.id, taskId)),
     createTaskLog({
+      ...data,
       taskId: taskId,
       userId,
       action: "update",
