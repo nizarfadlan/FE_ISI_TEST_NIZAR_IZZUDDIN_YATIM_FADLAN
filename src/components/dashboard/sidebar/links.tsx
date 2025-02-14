@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/hooks/useAuthStore";
+import { useSidebar } from "@/hooks/useSidebar";
 import type { RoutesDashboard } from "@/types";
 import { cn } from "@/utils";
 import { LayoutDashboardIcon } from "lucide-react";
@@ -15,6 +16,7 @@ export default function SidebarLinks({
 }) {
   const pathname = usePathname();
   const { loading, user } = useAuthStore();
+  const { isCollapsed } = useSidebar();
 
   const activeRoute = useCallback(
     (routeName: string) => {
@@ -37,9 +39,9 @@ export default function SidebarLinks({
 
       return (
         <Link key={index} href={route.pathName}>
-          <div className="group relative mb-5 flex w-full flex-row items-center text-sm hover:cursor-pointer">
+          <div className="group relative mb-4 flex w-full flex-row items-center text-sm hover:cursor-pointer">
             <li
-              className="my-[3px] flex cursor-pointer items-center px-4"
+              className="my-[3px] flex cursor-pointer items-center px-8"
               key={index}
             >
               <span
@@ -57,17 +59,18 @@ export default function SidebarLinks({
               </span>
               <p
                 className={cn(
-                  "leading-1 ml-4 flex",
+                  "leading-1 ml-4 flex lg:hidden",
                   activeRoute(route.pathName) === true
                     ? "font-medium text-indigo-600"
                     : "text-gray-600 group-hover:text-indigo-600",
+                  { "lg:block": !isCollapsed },
                 )}
               >
                 {route.name}
               </p>
             </li>
             {activeRoute(route.pathName) ? (
-              <div className="absolute bottom-auto left-0 top-auto h-9 w-1 rounded-lg bg-indigo-600" />
+              <div className="absolute bottom-auto left-2 top-auto h-9 w-1 rounded-lg bg-indigo-600" />
             ) : null}
           </div>
         </Link>
@@ -82,10 +85,15 @@ export default function SidebarLinks({
       ) : (
         <div className="group relative mb-4 flex w-full flex-row items-center text-sm hover:cursor-pointer">
           <li className="my-[3px] flex cursor-pointer items-center px-8">
-            <span className="group-hover:text-third-main font-medium text-gray-600">
+            <span className="group-hover:text-primary font-medium text-gray-600">
               <LayoutDashboardIcon className="h-5 w-5" />
             </span>
-            <p className="leading-1 group-hover:text-third-main ml-4 flex font-medium text-gray-600">
+            <p
+              className={cn(
+                "leading-1 group-hover:text-primary ml-4 flex font-medium text-gray-600 lg:hidden",
+                { "lg:block": !isCollapsed },
+              )}
+            >
               Loading
             </p>
           </li>

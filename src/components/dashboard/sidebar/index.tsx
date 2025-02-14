@@ -39,12 +39,9 @@ export default function Sidebar() {
     <div
       ref={wrapperRef}
       className={cn(
-        "fixed left-0 top-0 z-50 h-full bg-white transition-all duration-300 ease-in-out",
-        "flex flex-col shadow-lg",
-        "w-64",
-        "lg:translate-x-0",
+        "fixed left-0 top-0 z-50 flex h-full w-64 flex-col bg-white shadow-lg transition-all duration-300 ease-in-out lg:translate-x-0",
         { "w-64 -translate-x-96": !isCollapsed },
-        { "w-64 translate-x-0 lg:w-0": isCollapsed },
+        { "w-64 translate-x-0 lg:w-20": isCollapsed },
       )}
     >
       <div
@@ -67,7 +64,6 @@ export default function Sidebar() {
           onClick={() => toggleSidebar(!isCollapsed)}
           className={cn(
             "flex items-center justify-center rounded-full hover:bg-gray-100 [&_svg]:size-5",
-            isCollapsed && !isMobile && "ml-4 bg-white p-2 shadow-lg",
           )}
         >
           {isMobile ? (
@@ -90,18 +86,21 @@ export default function Sidebar() {
           </h3>
         </div>
       </div>
-      <ul className="sidebar-links mb-auto mt-6 flex h-full w-full flex-col justify-between overflow-y-auto overflow-x-clip px-6 pt-1">
+      <ul className="sidebar-links mb-auto mt-6 flex h-full w-full flex-col justify-between overflow-y-auto overflow-x-clip pt-1">
         <SidebarLinks routes={navigation} />
-        <div className="mt-auto flex flex-shrink-0 border-t border-gray-200">
-          <Button
-            onClick={logout}
-            variant="ghost"
-            className="mt-2 flex w-full justify-start hover:text-indigo-600"
+        <li
+          className="my-[3px] mt-auto flex cursor-pointer items-center px-8 text-gray-600 hover:text-indigo-600"
+          onClick={logout}
+        >
+          <LogOut className="h-5 w-5" />
+          <p
+            className={cn("leading-1 ml-4 flex lg:hidden", {
+              "lg:block": !isCollapsed,
+            })}
           >
-            <LogOut className="h-5 w-5" />
             Logout
-          </Button>
-        </div>
+          </p>
+        </li>
       </ul>
     </div>
   );
