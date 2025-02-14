@@ -1,7 +1,12 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "../db";
 import { tasks, type TaskStatus } from "../db/schema";
-import type { CreateTaskRequestDTO, UpdateTaskRequestDTO } from "./type";
+import type {
+  CreateTaskRequestDTO,
+  GetTasksResponseDTO,
+  UpdateStatusTaskRequestDTO,
+  UpdateTaskRequestDTO,
+} from "./type";
 import type { IdDTO } from "../type";
 import { createTaskLog } from "./logs/service";
 import { ClientError } from "@/utils/error";
@@ -17,6 +22,34 @@ export async function countTasksByStatus(status: TaskStatus): Promise<number> {
     tasks,
     and(eq(tasks.status, status), isNull(tasks.deletedAt)),
   );
+}
+
+export async function getTasks(): Promise<GetTasksResponseDTO> {
+  const result = await db.query.tasks.findMany({
+    where: isNull(tasks.deletedAt),
+    columns: {
+      id: true,
+      title: true,
+      description: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      deletedAt: true,
+    },
+    with: {
+      createdBy: {
+        columns: {
+          name: true,
+        },
+      },
+    },
+    orderBy: desc(tasks.createdAt),
+  });
+
+  return result.map((task) => ({
+    ...task,
+    createdBy: task.createdBy.name,
+  }));
 }
 
 export async function createTask(
@@ -69,6 +102,36 @@ export async function updateTask(
 
   if (!isLeader) {
     delete data.title;
+  }
+  if (!data.title) {
+    delete data.title;
+  }
+  if (!data.status) {
+    delete data.status;
+  }
+
+  await Promise.all([
+    db.update(tasks).set(data).where(eq(tasks.id, taskId)),
+    createTaskLog({
+      ...data,
+      taskId: taskId,
+      userId,
+      action: "update",
+    }),
+  ]);
+}
+
+export async function updateStatusTask(
+  data: UpdateStatusTaskRequestDTO,
+  taskId: string,
+  userId: string,
+): Promise<void> {
+  const task = await db.query.tasks.findFirst({
+    where: and(eq(tasks.id, taskId), isNull(tasks.deletedAt)),
+  });
+
+  if (!task) {
+    throw new ClientError("Task not found", HttpStatus.NOT_FOUND);
   }
 
   await Promise.all([

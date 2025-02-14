@@ -17,7 +17,7 @@ interface AuthState {
   error: string | null;
   isAuthenticated: boolean;
   initialize: () => Promise<void>;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   fetchProfile: () => Promise<void>;
 }
@@ -50,8 +50,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             await get().fetchProfile();
           }
           set({ isAuthenticated: response.data?.isAuthenticated });
-        } catch {
-          get().logout();
+        } catch (error) {
+          if (
+            error instanceof ClientError &&
+            error.toJson().error.status === HttpStatus.UNAUTHORIZED
+          ) {
+            get().logout();
+          }
         } finally {
           set({ loading: { ...get().loading, auth: false } });
         }
@@ -83,18 +88,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
         isAuthenticated: true,
       });
+
+      return true;
     } catch (err) {
       if (err instanceof ClientError) {
         toast.error("Failed to login", {
           description: err.message,
         });
-        return set({ error: err.message });
+        set({ error: err.message });
+        return false;
       }
 
       toast.error("Failed to login", {
         description: "Please check your credentials",
       });
       set({ error: "Login failed" });
+      return false;
     } finally {
       set({ loading: { ...get().loading, auth: false } });
     }

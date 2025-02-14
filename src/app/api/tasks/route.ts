@@ -1,4 +1,4 @@
-import { createTask } from "@/server/tasks/service";
+import { createTask, getTasks } from "@/server/tasks/service";
 import { createTaskRequestSchema } from "@/server/tasks/type";
 import { HttpStatus } from "@/types/httpStatus.enum";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
@@ -7,6 +7,17 @@ import type { JwtPayload } from "@/utils/jwt";
 import { validateRequest } from "@/utils/validation";
 import { withAuth } from "@/utils/withAuth";
 import { NextResponse, type NextRequest } from "next/server";
+
+async function handlerList() {
+  try {
+    const response = await getTasks();
+
+    return successResponse("Tasks fetched successfully", response);
+  } catch (error) {
+    return errorResponse("Failed to fetch tasks", 500, error);
+  }
+}
+export const GET = withAuth(handlerList);
 
 async function handlerCreate(req: NextRequest, jwtPayload: JwtPayload) {
   const validation = await validateRequest(req, createTaskRequestSchema);

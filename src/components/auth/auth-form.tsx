@@ -12,9 +12,12 @@ import {
   type LoginFormRequestDTO,
 } from "@/server/auth/type";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PasswordInput } from "../password-input";
+import { toast } from "sonner";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthForm() {
-  const { user, login, logout, error, loading } = useAuthStore();
+  const { login, loading } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -22,9 +25,22 @@ export default function AuthForm() {
   } = useForm<LoginFormRequestDTO>({
     resolver: zodResolver(loginFormRequestSchema),
   });
+  const search = useSearchParams();
+  const navigate = useRouter();
 
   const onSubmit: SubmitHandler<LoginFormRequestDTO> = async (data) => {
-    await login(data.username, data.password);
+    const successLogin = await login(data.username, data.password);
+
+    if (successLogin) {
+      toast.success("Successfully logged in", {
+        description: "You have been logged in",
+      });
+
+      const redirect = search.get("redirect") ?? "/dashboard";
+      const validatedRedirect = redirect.startsWith("/");
+
+      navigate.push(validatedRedirect ? redirect : "/dashboard");
+    }
   };
 
   if (loading.auth) {
@@ -32,7 +48,7 @@ export default function AuthForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {errors.root && <p className="text-red-500">{errors.root.message}</p>}
       <div>
         <Label htmlFor="username">
@@ -51,8 +67,7 @@ export default function AuthForm() {
           Password
           <Required />
         </Label>
-        <Input
-          type="password"
+        <PasswordInput
           placeholder="Password"
           {...register("password", { required: "Password is required" })}
           className="mt-1"

@@ -22,7 +22,7 @@ export function CardStatistic({ title, value }: CardStatisticProps) {
 
 export function CardStatisticSkeleton() {
   return (
-    <div className="overflow-hidden rounded-lg bg-white shadow">
+    <div className="overflow-hidden rounded-xl bg-white shadow">
       <div className="p-5">
         <div className="flex items-center">
           <div className="flex-1">

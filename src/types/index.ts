@@ -1,7 +1,6 @@
 import type { Role } from "@/server/db/schema";
-import type { LucideProps } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type dynamicIconImports from "lucide-react/dynamicIconImports";
-import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
 export interface SuccessResponse<T> {
   success: true;
@@ -26,8 +25,6 @@ export type IconType = keyof typeof dynamicIconImports;
 export type RoutesDashboard = {
   name: string;
   pathName: string;
-  icon?: ForwardRefExoticComponent<
-    Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
-  >;
+  icon?: LucideIcon;
   roles?: Role[];
 };

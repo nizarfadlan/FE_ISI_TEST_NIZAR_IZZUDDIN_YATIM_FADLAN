@@ -1,4 +1,4 @@
-import { createUser, updateUser } from "@/server/users/service";
+import { createUser, getUsers, updateUser } from "@/server/users/service";
 import {
   createUserRequestSchema,
   updateUserRequestSchema,
@@ -10,6 +10,23 @@ import type { JwtPayload } from "@/utils/jwt";
 import { validateRequest } from "@/utils/validation";
 import { withAuth } from "@/utils/withAuth";
 import { NextResponse, type NextRequest } from "next/server";
+
+async function handlerList(_: NextRequest, jwtPayload: JwtPayload) {
+  try {
+    if (jwtPayload.role !== "lead") {
+      throw new ClientError(
+        "You are not authorized to create user",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    const response = await getUsers();
+
+    return successResponse("Users fetched successfully", response);
+  } catch (error) {
+    return errorResponse("Failed to fetch users", 500, error);
+  }
+}
+export const GET = withAuth(handlerList);
 
 async function handlerCreate(req: NextRequest, jwtPayload: JwtPayload) {
   const validation = await validateRequest(req, createUserRequestSchema);

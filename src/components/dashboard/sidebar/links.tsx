@@ -19,9 +19,7 @@ export default function SidebarLinks({
   const { isCollapsed } = useSidebar();
 
   const activeRoute = useCallback(
-    (routeName: string) => {
-      return pathname?.includes(routeName);
-    },
+    (routeName: string) => pathname === routeName,
     [pathname],
   );
 
@@ -46,7 +44,7 @@ export default function SidebarLinks({
             >
               <span
                 className={cn(
-                  activeRoute(route.pathName) === true
+                  activeRoute(route.pathName)
                     ? "font-medium text-indigo-600"
                     : "text-gray-600 group-hover:text-indigo-600",
                 )}
@@ -60,7 +58,7 @@ export default function SidebarLinks({
               <p
                 className={cn(
                   "leading-1 ml-4 flex lg:hidden",
-                  activeRoute(route.pathName) === true
+                  activeRoute(route.pathName)
                     ? "font-medium text-indigo-600"
                     : "text-gray-600 group-hover:text-indigo-600",
                   { "lg:block": !isCollapsed },

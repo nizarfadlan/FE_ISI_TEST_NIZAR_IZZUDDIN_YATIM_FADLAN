@@ -3,6 +3,7 @@ import { db } from "../db";
 import type { IdDTO } from "../type";
 import type {
   CreateUserRequestDTO,
+  GetUsersResponseDTO,
   ProfileResponseDTO,
   UpdatePasswordRequestDTO,
   UpdateUserRequestDTO,
@@ -36,6 +37,14 @@ export async function getProfile(data: IdDTO): Promise<ProfileResponseDTO> {
 
 export async function countUsers(): Promise<number> {
   return await db.$count(users, isNull(users.deletedAt));
+}
+
+export async function getUsers(): Promise<GetUsersResponseDTO> {
+  const result = await db.query.users.findMany({
+    where: isNull(users.deletedAt),
+  });
+
+  return result;
 }
 
 export async function createUser(data: CreateUserRequestDTO): Promise<IdDTO> {

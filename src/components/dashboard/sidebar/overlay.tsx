@@ -1,6 +1,7 @@
 "use client";
 
 import { useSidebar } from "@/hooks/useSidebar";
+import { useMemo } from "react";
 
 const style = {
   overlay:
@@ -9,5 +10,10 @@ const style = {
 
 export default function Overlay() {
   const { isCollapsed, isMobile } = useSidebar();
-  return <div className={isMobile && isCollapsed ? style.overlay : ""} />;
+  const showOverlay = useMemo(
+    () => isMobile && isCollapsed,
+    [isMobile, isCollapsed],
+  );
+
+  return <div className={showOverlay ? style.overlay : ""} />;
 }

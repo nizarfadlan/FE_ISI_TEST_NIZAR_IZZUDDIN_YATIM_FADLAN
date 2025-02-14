@@ -18,7 +18,7 @@ export function middleware(req: NextRequest) {
     }
 
     return NextResponse.redirect(
-      new URL(`/login?from=${encodeURIComponent(from)}`, req.url),
+      new URL(`/login?redirect=${encodeURIComponent(from)}`, req.url),
     );
   }
 

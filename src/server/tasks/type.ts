@@ -1,5 +1,27 @@
-import type { z } from "zod";
-import { taskInsertSchema, taskUpdateSchema } from "../db/schema";
+import { z } from "zod";
+import {
+  taskInsertSchema,
+  taskSelectSchema,
+  taskUpdateSchema,
+} from "../db/schema";
+
+const getTaskSchema = taskSelectSchema
+  .pick({
+    id: true,
+    title: true,
+    description: true,
+    status: true,
+    createdAt: true,
+    updatedAt: true,
+    deletedAt: true,
+  })
+  .extend({
+    createdBy: z.string(),
+  });
+export type GetTaskDTO = z.infer<typeof getTaskSchema>;
+
+export const getTasksResponseSchema = z.array(getTaskSchema);
+export type GetTasksResponseDTO = z.infer<typeof getTasksResponseSchema>;
 
 export const createTaskRequestSchema = taskInsertSchema.omit({
   id: true,
@@ -9,6 +31,13 @@ export const createTaskRequestSchema = taskInsertSchema.omit({
   deletedAt: true,
 });
 export type CreateTaskRequestDTO = z.infer<typeof createTaskRequestSchema>;
+
+export const updateStatusTaskRequestSchema = taskUpdateSchema.pick({
+  status: true,
+});
+export type UpdateStatusTaskRequestDTO = z.infer<
+  typeof updateStatusTaskRequestSchema
+>;
 
 export const updateTaskRequestSchema = taskUpdateSchema.omit({
   id: true,

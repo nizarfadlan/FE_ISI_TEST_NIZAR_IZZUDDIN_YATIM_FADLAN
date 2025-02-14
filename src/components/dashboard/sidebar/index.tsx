@@ -20,7 +20,7 @@ import { Button } from "../../button";
 
 const navigation: RoutesDashboard[] = [
   { name: "Dashboard", pathName: "/dashboard", icon: Home },
-  { name: "Todo List", pathName: "/dashboard/todos", icon: CheckSquare },
+  { name: "Task List", pathName: "/dashboard/tasks", icon: CheckSquare },
   {
     name: "Users",
     pathName: "/dashboard/users",
@@ -32,17 +32,18 @@ const navigation: RoutesDashboard[] = [
 export default function Sidebar() {
   const { logout } = useAuthStore();
   const { isCollapsed, toggleSidebar, isMobile } = useSidebar();
-  const wrapperRef = useRef(null);
-  useOutSideClick(wrapperRef, () => toggleSidebar(false));
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useOutSideClick(wrapperRef, () => toggleSidebar(false), isCollapsed, true);
 
   return (
     <div
       ref={wrapperRef}
       className={cn(
-        "fixed left-0 top-0 z-50 flex h-full w-64 flex-col bg-white shadow-lg transition-all duration-300 ease-in-out lg:translate-x-0",
+        "fixed left-0 top-0 z-40 flex h-full w-64 flex-col bg-white shadow-lg transition-all duration-300 ease-in-out lg:translate-x-0",
         { "w-64 -translate-x-96": !isCollapsed },
         { "w-64 translate-x-0 lg:w-20": isCollapsed },
       )}
+      id="sidebar"
     >
       <div
         className={cn(
@@ -90,7 +91,7 @@ export default function Sidebar() {
         <SidebarLinks routes={navigation} />
         <li
           className="my-[3px] mt-auto flex cursor-pointer items-center px-8 text-gray-600 hover:text-indigo-600"
-          onClick={logout}
+          onClick={() => logout()}
         >
           <LogOut className="h-5 w-5" />
           <p

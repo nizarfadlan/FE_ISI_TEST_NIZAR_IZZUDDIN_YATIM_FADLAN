@@ -39,6 +39,9 @@ export const profileResponseSchema = userSelectSchema.omit({
 });
 export type ProfileResponseDTO = z.infer<typeof profileResponseSchema>;
 
+export const getUsersResponseSchema = z.array(userSelectSchema);
+export type GetUsersResponseDTO = z.infer<typeof getUsersResponseSchema>;
+
 export const createUserRequestSchema = userInsertSchema
   .omit({
     id: true,

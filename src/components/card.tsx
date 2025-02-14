@@ -1,5 +1,7 @@
 import { cn } from "@/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { LucideIcon } from "lucide-react";
+import { Button, type ButtonProps } from "./button";
 
 const cardVariants = cva("bg-white text-black", {
   variants: {
@@ -31,7 +33,7 @@ const cardVariants = cva("bg-white text-black", {
   defaultVariants: {
     shadow: "sm",
     border: "default",
-    rounded: "lg",
+    rounded: "xl",
   },
 });
 
@@ -42,6 +44,12 @@ export interface CardProps
   description?: string;
   children?: React.ReactNode;
   childrenFooter?: React.ReactNode;
+  positionButton?: "left" | "right";
+  IconButton?: LucideIcon;
+  textButton?: string;
+  colorVariantButton?: ButtonProps["variant"];
+  anotherChildHeader?: React.ReactNode;
+  callbackButton?: () => void;
 }
 
 export function Card({
@@ -51,6 +59,12 @@ export function Card({
   rounded,
   title,
   description,
+  positionButton = "right",
+  IconButton,
+  textButton,
+  colorVariantButton = "default",
+  anotherChildHeader,
+  callbackButton,
   children,
   childrenFooter,
   ...props
@@ -60,16 +74,49 @@ export function Card({
       className={cn(cardVariants({ shadow, border, rounded, className }))}
       {...props}
     >
-      <div className="p-6 pt-0">
-        <div className="flex flex-col space-y-1.5 p-6">
-          <h3 className="text-2xl font-semibold leading-none tracking-tight">
-            {title}
-          </h3>
-          {description && (
-            <p className="text-muted-foreground text-sm">{description}</p>
+      <div className="p-6">
+        <div
+          className={cn(
+            "flex flex-col space-y-1.5",
+            "flex items-center max-sm:space-y-2 sm:space-y-0",
+            positionButton === "left"
+              ? "flex-row-reverse flex-wrap-reverse justify-end"
+              : "flex-row flex-wrap justify-between",
           )}
+        >
+          <div className="space-y-1.5">
+            <h3 className="text-2xl font-semibold leading-none tracking-tight">
+              {title}
+            </h3>
+            {description && (
+              <p className="text-sm text-gray-600">{description}</p>
+            )}
+          </div>
+          {textButton || IconButton || anotherChildHeader ? (
+            <div
+              className={anotherChildHeader ? "flex flex-row space-x-2" : ""}
+            >
+              <Button
+                variant={colorVariantButton}
+                onClick={callbackButton}
+                className={cn(
+                  "px-4 py-4 sm:px-4 sm:py-3",
+                  positionButton === "left" ? "mr-4" : "",
+                )}
+                type="button"
+              >
+                {IconButton && <IconButton />}
+                {textButton && (
+                  <span className={IconButton && "hidden sm:block"}>
+                    {textButton}
+                  </span>
+                )}
+              </Button>
+              {anotherChildHeader && anotherChildHeader}
+            </div>
+          ) : null}
         </div>
-        {children}
+        <div className="py-4">{children}</div>
         {childrenFooter && (
           <div className="flex items-center p-6 pt-0">{childrenFooter}</div>
         )}

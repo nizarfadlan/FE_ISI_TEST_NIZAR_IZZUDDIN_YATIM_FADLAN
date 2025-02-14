@@ -47,7 +47,6 @@ export default function SidebarProvider({
     }
 
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, [isCollapsed, initialRenderDone]);
 

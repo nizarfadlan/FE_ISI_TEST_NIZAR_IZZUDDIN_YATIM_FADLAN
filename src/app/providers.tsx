@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Fragment, useEffect } from "react";
 import { Toaster } from "sonner";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
