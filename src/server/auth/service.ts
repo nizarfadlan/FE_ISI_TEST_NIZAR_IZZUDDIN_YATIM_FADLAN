@@ -45,12 +45,10 @@ export async function loginUser(
 
   const payload: JwtPayload = { userId: user.id, role: user.role };
 
-  const newAccessToken = await signJwt(payload, JWT_EXPIRATION, secret);
-  const newRefreshToken = await signJwt(
-    payload,
-    JWT_EXPIRATION_REFRESH,
-    secretRefresh,
-  );
+  const [newAccessToken, newRefreshToken] = await Promise.all([
+    signJwt(payload, JWT_EXPIRATION, secret),
+    signJwt(payload, JWT_EXPIRATION_REFRESH, secretRefresh),
+  ]);
 
   const refreshTokenExpiresIn = new Date(
     Date.now() + JWT_EXPIRATION_REFRESH * 1000,
@@ -69,16 +67,14 @@ export async function refreshUserToken(
 ): Promise<RefreshTokenResponseDTO> {
   const { refreshToken: token } = data;
 
-  const verifyToken = (await verifyJwt(token, secretRefresh))!;
-  if (!verifyToken) {
-    throw new ClientError("Invalid token", HttpStatus.BAD_REQUEST);
-  }
-
-  const storedToken = await db.query.refreshToken.findFirst({
-    where: eq(refreshToken.token, token),
-  });
-  if (!storedToken) {
-    throw new ClientError("Invalid token", HttpStatus.BAD_REQUEST);
+  const [verifyToken, storedToken] = await Promise.all([
+    verifyJwt(token, secretRefresh),
+    db.query.refreshToken.findFirst({
+      where: eq(refreshToken.token, token),
+    }),
+  ]);
+  if (!verifyToken || !storedToken) {
+    throw new ClientError("Invalid or expired token", HttpStatus.UNAUTHORIZED);
   }
 
   const user = await db.query.users.findFirst({
@@ -89,16 +85,13 @@ export async function refreshUserToken(
   }
 
   useAuthStore.setState({ user });
-  await db.delete(refreshToken).where(eq(refreshToken.token, refreshToken));
-
   const payload: JwtPayload = { userId: user.id, role: user.role };
 
-  const newAccessToken = await signJwt(payload, JWT_EXPIRATION, secret);
-  const newRefreshToken = await signJwt(
-    payload,
-    JWT_EXPIRATION_REFRESH,
-    secretRefresh,
-  );
+  const [newAccessToken, newRefreshToken] = await Promise.all([
+    signJwt(payload, JWT_EXPIRATION, secret),
+    signJwt(payload, JWT_EXPIRATION_REFRESH, secretRefresh),
+    db.delete(refreshToken).where(eq(refreshToken.token, token)),
+  ]);
 
   const refreshTokenExpiresIn = new Date(
     Date.now() + JWT_EXPIRATION_REFRESH * 1000,
