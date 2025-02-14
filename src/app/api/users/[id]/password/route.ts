@@ -1,3 +1,4 @@
+import type { IdDTO } from "@/server/type";
 import { updatePassword } from "@/server/users/service";
 import { updatePasswordRequestSchema } from "@/server/users/type";
 import { HttpStatus } from "@/types/httpStatus.enum";
@@ -11,7 +12,7 @@ import { NextResponse, type NextRequest } from "next/server";
 async function handlerUpdatePassword(
   req: NextRequest,
   jwtPayload: JwtPayload,
-  params: { id: string },
+  params: IdDTO,
 ) {
   const validation = await validateRequest(req, updatePasswordRequestSchema);
 
