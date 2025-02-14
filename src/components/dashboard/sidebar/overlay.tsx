@@ -8,6 +8,6 @@ const style = {
 };
 
 export default function Overlay() {
-  const { toggleSidebar } = useSidebar();
-  return <div className={toggleSidebar ? style.overlay : ""} />;
+  const { isCollapsed, isMobile } = useSidebar();
+  return <div className={isMobile && isCollapsed ? style.overlay : ""} />;
 }

@@ -2,17 +2,18 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
-  type Dispatch,
-  type SetStateAction,
 } from "react";
+import useMedia from "./useMedia";
 
 type SidebarContextType = {
-  toggleSidebar: boolean;
-  setToggleSidebar: Dispatch<SetStateAction<boolean>>;
-  sidebarWidth?: number;
+  isCollapsed: boolean;
+  toggleSidebar: (state: boolean) => void;
+  isMobile: boolean;
 };
 
 export const SidebarContext = createContext<SidebarContextType>(
@@ -24,32 +25,38 @@ export default function SidebarProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [toggleSidebar, setToggleSidebar] = useState<boolean>(false);
-  const [sidebarWidth, setSidebarWidth] = useState<number>(0);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const initialRenderDone = useRef(false);
+
+  const isMobile = useMedia("(max-width: 1024px)");
+
+  const toggleSidebar = useCallback((state: boolean) => {
+    setIsCollapsed(state);
+  }, []);
 
   useEffect(() => {
-    setSidebarWidth(toggleSidebar ? 260 : 0);
-    window.addEventListener("resize", () => {
-      if (toggleSidebar && window.innerWidth >= 1536) {
-        setToggleSidebar(false);
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsCollapsed(false);
       }
-    });
-
-    return () => {
-      window.removeEventListener("resize", () => {
-        if (toggleSidebar && window.innerWidth >= 1536) {
-          setToggleSidebar(false);
-        }
-      });
     };
-  }, [toggleSidebar]);
+
+    if (!initialRenderDone.current) {
+      handleResize();
+      initialRenderDone.current = true;
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isCollapsed, initialRenderDone]);
 
   return (
     <SidebarContext.Provider
       value={{
+        isCollapsed,
         toggleSidebar,
-        setToggleSidebar,
-        sidebarWidth,
+        isMobile,
       }}
     >
       {children}
