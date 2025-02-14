@@ -28,6 +28,8 @@ export const taskStatusEnum = pgEnum("task_status", [
   "reject",
 ]);
 
+export type Role = (typeof roleEnum.enumValues)[number];
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().$defaultFn(uuidv7),
   name: varchar("name", { length: 50 }).notNull(),

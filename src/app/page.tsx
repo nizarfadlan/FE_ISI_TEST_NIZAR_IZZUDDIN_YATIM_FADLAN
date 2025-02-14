@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import MainLayout from "@/components/layout/main-layout";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/hooks/useAuthStore";
 import { Button } from "@/components/button";
 
 export default function HomePage() {

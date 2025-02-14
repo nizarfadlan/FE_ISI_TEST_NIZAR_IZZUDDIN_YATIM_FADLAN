@@ -4,6 +4,7 @@ import {
   JWT_EXPIRATION,
   JWT_EXPIRATION_REFRESH,
 } from "@/constant";
+import { env } from "@/env";
 import { loginUser } from "@/server/auth/service";
 import { loginFormRequestSchema } from "@/server/auth/type";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
@@ -29,12 +30,14 @@ export async function POST(req: NextRequest) {
     cookieStore.set(COOKIE_ACCESS_TOKEN, response.accessToken, {
       maxAge: JWT_EXPIRATION,
       httpOnly: true,
+      secure: env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
     });
     cookieStore.set(COOKIE_REFRESH_TOKEN, response.refreshToken, {
       maxAge: JWT_EXPIRATION_REFRESH,
       httpOnly: true,
+      secure: env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/api/auth/refresh",
     });

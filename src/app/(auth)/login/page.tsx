@@ -1,25 +1,19 @@
 "use client";
 
 import AuthForm from "@/components/auth/auth-form";
-import { Button } from "@/components/button";
-import { useAuthStore } from "@/stores/useAuthStore";
-import Link from "next/link";
+import { useAuthStore } from "@/hooks/useAuthStore";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginPage() {
+  const navigate = useRouter();
   const { isAuthenticated } = useAuthStore();
 
-  if (isAuthenticated) {
-    return (
-      <div className="mx-auto max-w-md">
-        <h1 className="mb-6 text-center text-3xl font-bold">
-          You are already logged in
-        </h1>
-        <Button asChild>
-          <Link href="/">Go to home</Link>
-        </Button>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate.push("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">

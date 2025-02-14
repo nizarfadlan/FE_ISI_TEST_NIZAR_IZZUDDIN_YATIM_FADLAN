@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/hooks/useAuthStore";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import Loading from "../loading";
 import { Input } from "../input";
@@ -33,6 +33,7 @@ export default function AuthForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {errors.root && <p className="text-red-500">{errors.root.message}</p>}
       <div>
         <Label htmlFor="username">
           Username

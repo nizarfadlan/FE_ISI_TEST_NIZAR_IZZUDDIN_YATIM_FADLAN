@@ -18,7 +18,7 @@ import { comparePassword } from "@/utils/bcrypt";
 import { ClientError } from "@/utils/error";
 import { HttpStatus } from "@/types/httpStatus.enum";
 import { eq } from "drizzle-orm";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/hooks/useAuthStore";
 import { cookies } from "next/headers";
 
 const secret = new TextEncoder().encode(env.JWT_SECRET);

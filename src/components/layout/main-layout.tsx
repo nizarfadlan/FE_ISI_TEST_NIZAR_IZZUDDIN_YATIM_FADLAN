@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/hooks/useAuthStore";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Button } from "../button";
