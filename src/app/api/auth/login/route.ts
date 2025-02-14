@@ -22,11 +22,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const { data } = validation;
-
     const response = await loginUser(data);
 
     const cookieStore = await cookies();
-
     cookieStore.set(COOKIE_ACCESS_TOKEN, response.accessToken, {
       maxAge: JWT_EXPIRATION,
       httpOnly: true,

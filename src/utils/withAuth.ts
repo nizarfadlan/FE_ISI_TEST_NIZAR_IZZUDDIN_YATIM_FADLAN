@@ -6,13 +6,18 @@ import { HttpStatus } from "@/types/httpStatus.enum";
 import { COOKIE_ACCESS_TOKEN } from "@/constant";
 import type { JwtPayload } from "./jwt";
 
-type Handler = (
+type RouteParams = Record<string, string>;
+
+type Handler<T extends RouteParams = RouteParams> = (
   request: NextRequest,
   jwtPayload: JwtPayload,
+  params: T,
 ) => Promise<NextResponse>;
 
-export function withAuth(handler: Handler): Handler {
-  return async function (request: NextRequest) {
+export function withAuth<T extends RouteParams = RouteParams>(
+  handler: Handler<T>,
+): (request: NextRequest, context: { params: T }) => Promise<NextResponse> {
+  return async function (request: NextRequest, context: { params: T }) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_ACCESS_TOKEN);
 
@@ -22,7 +27,7 @@ export function withAuth(handler: Handler): Handler {
 
     try {
       const verify = await verifyAccessToken(accessToken.value);
-      return handler(request, verify);
+      return handler(request, verify, context.params);
     } catch (error) {
       if (error instanceof Error) {
         return errorResponse(error.message, HttpStatus.UNAUTHORIZED);
