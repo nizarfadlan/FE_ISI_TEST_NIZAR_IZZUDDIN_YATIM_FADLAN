@@ -3,5 +3,6 @@ import { userSelectSchema } from "../db/schema";
 
 export const profileResponseSchema = userSelectSchema.omit({
   password: true,
+  deletedAt: true,
 });
 export type ProfileResponseDTO = z.infer<typeof profileResponseSchema>;

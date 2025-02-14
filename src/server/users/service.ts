@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 import { db } from "../db";
 import type { IdDTO } from "../type";
 import type { ProfileResponseDTO } from "./type";
@@ -29,5 +29,5 @@ export async function getProfile(data: IdDTO): Promise<ProfileResponseDTO> {
 }
 
 export async function countUsers(): Promise<number> {
-  return await db.$count(users);
+  return await db.$count(users, isNull(users.deletedAt));
 }

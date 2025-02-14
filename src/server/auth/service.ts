@@ -17,7 +17,7 @@ import type {
 import { comparePassword } from "@/utils/bcrypt";
 import { ClientError } from "@/utils/error";
 import { HttpStatus } from "@/types/httpStatus.enum";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { cookies } from "next/headers";
 
@@ -30,7 +30,7 @@ export async function loginUser(
   const { username, password } = data;
 
   const user = await db.query.users.findFirst({
-    where: eq(users.username, username),
+    where: and(eq(users.username, username), isNull(users.deletedAt)),
   });
 
   if (!user) {
@@ -78,7 +78,7 @@ export async function refreshUserToken(
   }
 
   const user = await db.query.users.findFirst({
-    where: eq(users.id, verifyToken.userId),
+    where: and(eq(users.id, verifyToken.userId), isNull(users.deletedAt)),
   });
   if (!user) {
     throw new ClientError("User not found", HttpStatus.NOT_FOUND);

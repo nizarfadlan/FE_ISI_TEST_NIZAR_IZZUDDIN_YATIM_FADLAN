@@ -1,9 +1,10 @@
 import { JWT_ALGORITHM } from "@/constant";
+import type { Role } from "@/server/db/schema";
 import { jwtVerify, SignJWT, type JWTPayload } from "jose";
 
 export interface JwtPayload extends JWTPayload {
   userId: string;
-  role: string;
+  role: Role;
 }
 
 export async function signJwt(

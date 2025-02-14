@@ -11,7 +11,12 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { v7 as uuidv7 } from "uuid";
-import { createSelectSchema } from "drizzle-zod";
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
+import type { z } from "zod";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -44,9 +49,14 @@ export const users = pgTable("users", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
 
 export const userSelectSchema = createSelectSchema(users);
+export const userInsertSchema = createInsertSchema(users);
+export const userUpdateSchema = createUpdateSchema(users);
+
+export type User = z.infer<typeof userSelectSchema>;
 
 export const tasks = pgTable("tasks", {
   id: uuid("id").primaryKey().$defaultFn(uuidv7),
@@ -63,7 +73,14 @@ export const tasks = pgTable("tasks", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
+
+export const taskSelectSchema = createSelectSchema(tasks);
+export const taskInsertSchema = createInsertSchema(tasks);
+export const taskUpdateSchema = createUpdateSchema(tasks);
+
+export type Task = z.infer<typeof taskSelectSchema>;
 
 export const taskLogs = pgTable("task_logs", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
@@ -78,6 +95,9 @@ export const taskLogs = pgTable("task_logs", {
     .defaultNow()
     .notNull(),
 });
+
+export const taskLogInsertSchema = createInsertSchema(taskLogs);
+export type InsertTaskLog = z.infer<typeof taskLogInsertSchema>;
 
 export const refreshToken = pgTable("refresh_token", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
