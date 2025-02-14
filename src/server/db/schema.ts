@@ -29,6 +29,7 @@ export const taskStatusEnum = pgEnum("task_status", [
 ]);
 
 export type Role = (typeof roleEnum.enumValues)[number];
+export type TaskStatus = (typeof taskStatusEnum.enumValues)[number];
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().$defaultFn(uuidv7),

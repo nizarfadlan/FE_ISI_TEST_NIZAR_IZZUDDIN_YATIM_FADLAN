@@ -27,3 +27,7 @@ export async function getProfile(data: IdDTO): Promise<ProfileResponseDTO> {
 
   return result;
 }
+
+export async function countUsers(): Promise<number> {
+  return await db.$count(users);
+}
