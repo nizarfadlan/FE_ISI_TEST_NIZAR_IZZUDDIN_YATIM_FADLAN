@@ -5,89 +5,32 @@ import TaskItem, {
   TodoItemSkeleton,
 } from "@/components/dashboard/tasks/task-item";
 import { useModalDialog } from "@/hooks/useModalDialog";
-import { api, apiCall } from "@/lib/axios";
 import {
   updateTaskRequestSchema,
-  type GetTasksResponseDTO,
-  type UpdateStatusTaskRequestDTO,
   type UpdateTaskRequestDTO,
 } from "@/server/tasks/type";
-import type { ApiResponse } from "@/types";
-import { ClientError } from "@/utils/error";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { Fragment } from "react";
 import AddTask from "./add-task";
 import { ModalDialog } from "@/components/modal/modal-dialog";
-import { createMutationOptions } from "@/lib/query";
 import { queryClient } from "@/app/providers";
-import type { IdDTO } from "@/server/type";
 import type { TaskStatus } from "@/server/db/schema";
 import Loading from "@/components/loading";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  useDeleteTask,
+  useGetTasks,
+  useUpdateStatusTask,
+  useUpdateTask,
+} from "@/server/tasks/query";
 
 export default function Todos() {
   const { showModal } = useModalDialog();
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: async () => {
-      const result = (await apiCall(
-        api.get("/api/tasks"),
-      )) as ApiResponse<GetTasksResponseDTO>;
-
-      if (!result.success) {
-        throw new ClientError(result.error.message, result.error.status);
-      }
-
-      return result;
-    },
-  });
+  const { data, isLoading, isFetching } = useGetTasks();
 
   const { mutate: mutateUpdateStatus, isPending: isPendingUpdateStatus } =
-    useMutation<
-      ApiResponse<undefined>,
-      unknown,
-      UpdateStatusTaskRequestDTO & IdDTO
-    >({
-      mutationFn: async (data: UpdateStatusTaskRequestDTO & IdDTO) => {
-        const { id, ...rest } = data;
-        const result = (await apiCall(
-          api.patch(`/api/tasks/${id}/status`, rest),
-        )) as ApiResponse<undefined>;
-
-        return result;
-      },
-      ...createMutationOptions({
-        successMessage: "Task updated successfully",
-        errorMessage: "Failed to update task",
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["tasks"],
-          });
-        },
-      }),
-    });
-
-  const form = useForm<UpdateTaskRequestDTO>({
-    resolver: zodResolver(updateTaskRequestSchema),
-    mode: "onChange",
-  });
-
-  const { mutate: mutateUpdate, isPending: isPendingUpdate } = useMutation<
-    ApiResponse<undefined>,
-    unknown,
-    UpdateTaskRequestDTO & IdDTO
-  >({
-    mutationFn: async (data: UpdateTaskRequestDTO & IdDTO) => {
-      const { id, ...rest } = data;
-      const result = (await apiCall(
-        api.patch(`/api/tasks/${id}`, rest),
-      )) as ApiResponse<undefined>;
-
-      return result;
-    },
-    ...createMutationOptions({
+    useUpdateStatusTask({
       successMessage: "Task updated successfully",
       errorMessage: "Failed to update task",
       onSuccess: () => {
@@ -95,31 +38,31 @@ export default function Todos() {
           queryKey: ["tasks"],
         });
       },
-    }),
+    });
+
+  const form = useForm<UpdateTaskRequestDTO>({
+    resolver: zodResolver(updateTaskRequestSchema),
+    mode: "onChange",
   });
 
-  const { mutate: mutateDelete, isPending: isPendingDelete } = useMutation<
-    ApiResponse<undefined>,
-    unknown,
-    IdDTO
-  >({
-    mutationFn: async (data: IdDTO) => {
-      const { id } = data;
-      const result = (await apiCall(
-        api.delete(`/api/tasks/${id}`),
-      )) as ApiResponse<undefined>;
-
-      return result;
+  const { mutate: mutateUpdate, isPending: isPendingUpdate } = useUpdateTask({
+    successMessage: "Task updated successfully",
+    errorMessage: "Failed to update task",
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
     },
-    ...createMutationOptions({
-      successMessage: "Task deleted successfully",
-      errorMessage: "Failed to delete task",
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ["tasks"],
-        });
-      },
-    }),
+  });
+
+  const { mutate: mutateDelete, isPending: isPendingDelete } = useDeleteTask({
+    successMessage: "Task deleted successfully",
+    errorMessage: "Failed to delete task",
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+    },
   });
 
   return (
