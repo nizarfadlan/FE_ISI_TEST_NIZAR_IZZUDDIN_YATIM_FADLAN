@@ -1,6 +1,6 @@
-import { queryClient } from "@/app/providers";
 import AddUserForm from "@/components/dashboard/users/add-user-form";
 import { useModalDialog } from "@/hooks/useModalDialog";
+import { queryClient } from "@/lib/query";
 import { useCreateUser } from "@/server/users/query";
 import {
   createUserRequestSchema,

@@ -1,6 +1,5 @@
 "use client";
 
-import { queryClient } from "@/app/providers";
 import { Card } from "@/components/card";
 import EditPasswordUserForm, {
   EditPasswordUserFormSkeleton,
@@ -9,6 +8,8 @@ import EditUserForm, {
   EditUserFormSkeleton,
 } from "@/components/dashboard/users/edit-user-form";
 import Loading from "@/components/loading";
+import { useAuthStore } from "@/hooks/useAuthStore";
+import { queryClient } from "@/lib/query";
 import {
   useGetUser,
   useUpdatePasswordWithId,
@@ -25,10 +26,20 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
 
 export default function EditUserClient({ id }: { id: string }) {
-  const { data, isLoading, isFetching } = useGetUser(id);
   const navigate = useRouter();
+  const { user, loading } = useAuthStore();
+
+  useEffect(() => {
+    if (user && user.role !== "lead" && !loading.auth) {
+      toast.error("You are not authorized to access this page");
+      navigate.push("/dashboard");
+    }
+  }, [user, navigate, loading.auth]);
+
+  const { data, isLoading, isFetching } = useGetUser(id);
 
   const formUpdateUser = useForm<UpdateUserRequestDTO>({
     resolver: zodResolver(updateUserRequestSchema),

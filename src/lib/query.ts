@@ -1,11 +1,14 @@
 import { ClientError } from "@/utils/error";
-import type {
-  MutationOptions,
-  QueryKey,
-  UseQueryOptions,
+import {
+  QueryClient,
+  type MutationOptions,
+  type QueryKey,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
 import type { FieldValues, UseFormSetError } from "react-hook-form";
 import { toast } from "sonner";
+
+export const queryClient = new QueryClient();
 
 export interface MutationCallbacks<
   TData = unknown,

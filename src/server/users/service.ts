@@ -7,11 +7,12 @@ import type {
   GetUserResponseDTO,
   UpdatePasswordRequestDTO,
   UpdateUserRequestDTO,
+  GetUserOptionResponseDTO,
 } from "./type";
 import { users } from "../db/schema";
 import { ClientError } from "@/utils/error";
 import { HttpStatus } from "@/types/httpStatus.enum";
-import { comparePassword } from "@/utils/bcrypt";
+import { comparePassword, hashPassword } from "@/utils/bcrypt";
 
 export async function getUser(data: IdDTO): Promise<GetUserResponseDTO> {
   const { id } = data;
@@ -40,6 +41,19 @@ export async function countUsers(): Promise<number> {
   return await db.$count(users, isNull(users.deletedAt));
 }
 
+export async function getUserOptions(): Promise<GetUserOptionResponseDTO[]> {
+  const result = await db.query.users.findMany({
+    columns: {
+      id: true,
+      name: true,
+    },
+    where: and(isNull(users.deletedAt), eq(users.role, "team")),
+    orderBy: desc(users.createdAt),
+  });
+
+  return result;
+}
+
 export async function getUsers(): Promise<GetUsersResponseDTO> {
   const result = await db.query.users.findMany({
     columns: {
@@ -58,9 +72,18 @@ export async function getUsers(): Promise<GetUsersResponseDTO> {
 }
 
 export async function createUser(data: CreateUserRequestDTO): Promise<IdDTO> {
-  const [user] = await db.insert(users).values(data).returning({
-    id: users.id,
-  });
+  const { password, ...rest } = data;
+  const passwordHash = await hashPassword(password);
+
+  const [user] = await db
+    .insert(users)
+    .values({
+      ...rest,
+      password: passwordHash,
+    })
+    .returning({
+      id: users.id,
+    });
 
   if (!user) {
     throw new ClientError(
@@ -128,7 +151,11 @@ export async function updatePassword(
     throw new ClientError("Invalid old password", HttpStatus.BAD_REQUEST);
   }
 
-  await db.update(users).set({ password: newPassword }).where(eq(users.id, id));
+  const passwordHash = await hashPassword(newPassword);
+  await db
+    .update(users)
+    .set({ password: passwordHash })
+    .where(eq(users.id, id));
 }
 
 export async function deleteUser(id: string) {

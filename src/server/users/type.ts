@@ -38,6 +38,14 @@ export const getUserResponseSchema = userSelectSchema.omit({
 });
 export type GetUserResponseDTO = z.infer<typeof getUserResponseSchema>;
 
+export const getUserOptionResponseSchema = userSelectSchema.pick({
+  id: true,
+  name: true,
+});
+export type GetUserOptionResponseDTO = z.infer<
+  typeof getUserOptionResponseSchema
+>;
+
 export const getUsersResponseSchema = z.array(getUserResponseSchema);
 export type GetUsersResponseDTO = z.infer<typeof getUsersResponseSchema>;
 

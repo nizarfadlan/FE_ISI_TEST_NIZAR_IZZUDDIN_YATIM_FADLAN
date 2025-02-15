@@ -11,23 +11,24 @@ import {
   useGetUsers,
   useRestoreUser,
 } from "@/server/users/query";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCcw } from "lucide-react";
 import AddUser from "./add-user";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { queryClient } from "@/app/providers";
 import Loading from "@/components/loading";
+import { queryClient } from "@/lib/query";
+import { Button } from "@/components/button";
 
 export default function Users() {
   const { showModal } = useModalDialog();
-  const { data, isLoading, isFetching } = useGetUsers();
+  const { data, isLoading, isFetching, refetch } = useGetUsers();
   const { user, loading } = useAuthStore();
   const navigate = useRouter();
 
   useEffect(() => {
-    if (user?.role !== "lead" && !loading.auth) {
+    if (user && user.role !== "lead" && !loading.auth) {
       toast.error("You are not authorized to access this page");
       navigate.push("/dashboard");
     }
@@ -66,6 +67,12 @@ export default function Users() {
           title: "Create User",
           content: <AddUser />,
         })
+      }
+      anotherChildHeader={
+        <Button onClick={() => refetch()} variant="outline">
+          <RefreshCcw />
+          Refresh
+        </Button>
       }
     >
       {(isPendingDelete || isPendingRestore) && (

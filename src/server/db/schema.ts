@@ -7,6 +7,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -36,6 +37,7 @@ export const taskStatusEnum = pgEnum("task_status", [
 
 export type Role = (typeof roleEnum.enumValues)[number];
 export type TaskStatus = (typeof taskStatusEnum.enumValues)[number];
+export const TaskStatusValues = taskStatusEnum.enumValues;
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().$defaultFn(uuidv7),
@@ -57,6 +59,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   tasks: many(tasks),
   taskLogs: many(taskLogs),
   refreshTokens: many(refreshToken),
+  assignedTasks: many(taskAssignees),
 }));
 
 export const userSelectSchema = createSelectSchema(users);
@@ -88,6 +91,7 @@ export const tasksRelations = relations(tasks, ({ one, many }) => ({
     references: [users.id],
   }),
   taskLogs: many(taskLogs),
+  assignees: many(taskAssignees),
 }));
 
 export const taskSelectSchema = createSelectSchema(tasks);
@@ -95,29 +99,33 @@ export const taskInsertSchema = createInsertSchema(tasks);
 export const taskUpdateSchema = createUpdateSchema(tasks);
 export type Task = z.infer<typeof taskSelectSchema>;
 
-// export const taskAssignees = pgTable("task_assignees", {
-//   id: uuid("id").primaryKey().$defaultFn(uuidv7),
-//   taskId: uuid("task_id")
-//     .references(() => tasks.id)
-//     .notNull(),
-//   userId: uuid("user_id")
-//     .references(() => users.id)
-//     .notNull(),
-// });
+export const taskAssignees = pgTable(
+  "task_assignees",
+  {
+    id: uuid("id").primaryKey().$defaultFn(uuidv7),
+    taskId: uuid("task_id")
+      .references(() => tasks.id)
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id)
+      .notNull(),
+  },
+  (t) => [unique().on(t.taskId, t.userId)],
+);
 
-// export const taskAssigneesRelations = relations(taskAssignees, ({ one }) => ({
-//   task: one(tasks, {
-//     fields: [taskAssignees.taskId],
-//     references: [tasks.id],
-//   }),
-//   user: one(users, {
-//     fields: [taskAssignees.userId],
-//     references: [users.id],
-//   }),
-// }));
+export const taskAssigneesRelations = relations(taskAssignees, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskAssignees.taskId],
+    references: [tasks.id],
+  }),
+  user: one(users, {
+    fields: [taskAssignees.userId],
+    references: [users.id],
+  }),
+}));
 
-// export const taskAssigneesInsertSchema = createInsertSchema(taskAssignees);
-// export type InsertTaskAssignee = z.infer<typeof taskAssigneesInsertSchema>;
+export const taskAssigneesInsertSchema = createInsertSchema(taskAssignees);
+export type InsertTaskAssignee = z.infer<typeof taskAssigneesInsertSchema>;
 
 export const taskLogs = pgTable("task_logs", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),

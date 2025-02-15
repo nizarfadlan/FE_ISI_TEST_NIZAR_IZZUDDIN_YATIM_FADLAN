@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import type {
   CreateUserRequestDTO,
+  GetUserOptionResponseDTO,
   GetUserResponseDTO,
   GetUsersResponseDTO,
   UpdatePasswordRequestDTO,
@@ -37,6 +38,26 @@ export function useGetUser(
       return result;
     },
     enabled: !!id,
+    ...options,
+  });
+}
+
+export function useGetUserOptions(
+  options?: QueryOptions<ApiResponse<GetUserOptionResponseDTO[]>>,
+) {
+  return useQuery<ApiResponse<GetUserOptionResponseDTO[]>>({
+    queryKey: ["user-options"],
+    queryFn: async () => {
+      const result = (await apiCall(
+        api.get("/api/users/options"),
+      )) as ApiResponse<GetUserOptionResponseDTO[]>;
+
+      if (!result.success) {
+        throw new ClientError(result.error.message, result.error.status);
+      }
+
+      return result;
+    },
     ...options,
   });
 }

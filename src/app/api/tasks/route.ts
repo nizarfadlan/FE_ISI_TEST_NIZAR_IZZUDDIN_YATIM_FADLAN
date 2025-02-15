@@ -12,7 +12,8 @@ export async function GET() {
   if (user instanceof NextResponse) return user;
 
   try {
-    const response = await getTasks();
+    const { userId } = user;
+    const response = await getTasks(userId);
 
     return successResponse("Tasks fetched successfully", response);
   } catch (error) {

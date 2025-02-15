@@ -11,7 +11,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx --env-file=./.env ./src/server/db/seeder.ts",
-    "dev": "next dev --turbo",
+    "dev": "NODE_OPTIONS='--inspect' next dev --turbo",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "preview": "next build && next start",

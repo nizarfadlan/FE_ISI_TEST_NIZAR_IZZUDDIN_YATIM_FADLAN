@@ -1,6 +1,6 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { db } from "../db";
-import { tasks, type TaskStatus } from "../db/schema";
+import { taskAssignees, tasks, type TaskStatus } from "../db/schema";
 import type {
   CreateTaskRequestDTO,
   GetTasksResponseDTO,
@@ -24,9 +24,20 @@ export async function countTasksByStatus(status: TaskStatus): Promise<number> {
   );
 }
 
-export async function getTasks(): Promise<GetTasksResponseDTO> {
+export async function getTasks(userId: string): Promise<GetTasksResponseDTO> {
+  const assignedTasks = await db.query.taskAssignees.findMany({
+    where: eq(taskAssignees.userId, userId),
+    columns: {
+      taskId: true,
+    },
+  });
+
+  const taskIds = assignedTasks.map((task) => task.taskId);
   const result = await db.query.tasks.findMany({
-    where: isNull(tasks.deletedAt),
+    where: and(
+      isNull(tasks.deletedAt),
+      or(eq(tasks.createdById, userId), inArray(tasks.id, taskIds)),
+    ),
     columns: {
       id: true,
       title: true,
@@ -35,11 +46,17 @@ export async function getTasks(): Promise<GetTasksResponseDTO> {
       createdAt: true,
       updatedAt: true,
       deletedAt: true,
+      createdById: true,
     },
     with: {
       createdBy: {
         columns: {
           name: true,
+        },
+      },
+      assignees: {
+        columns: {
+          userId: true,
         },
       },
     },
@@ -49,6 +66,7 @@ export async function getTasks(): Promise<GetTasksResponseDTO> {
   return result.map((task) => ({
     ...task,
     createdBy: task.createdBy.name,
+    assigneeIds: task.assignees.map((assignee) => assignee.userId),
   }));
 }
 
@@ -56,10 +74,11 @@ export async function createTask(
   data: CreateTaskRequestDTO,
   userId: string,
 ): Promise<IdDTO> {
+  const { assigneeIds, ...dataTask } = data;
   const [task] = await db
     .insert(tasks)
     .values({
-      ...data,
+      ...dataTask,
       createdById: userId,
     })
     .returning({
@@ -73,12 +92,22 @@ export async function createTask(
     );
   }
 
-  await createTaskLog({
-    ...data,
-    taskId: task.id,
-    userId,
-    action: "create",
-  });
+  await Promise.all([
+    createTaskLog({
+      ...data,
+      taskId: task.id,
+      userId,
+      action: "create",
+    }),
+    assigneeIds && assigneeIds.length > 0
+      ? db.insert(taskAssignees).values(
+          assigneeIds.map((id) => ({
+            userId: id,
+            taskId: task.id,
+          })),
+        )
+      : Promise.resolve(),
+  ]);
 
   return { id: task.id };
 }
@@ -89,6 +118,7 @@ export async function updateTask(
   jwtPayload: JwtPayload,
 ): Promise<void> {
   const { userId, role } = jwtPayload;
+  const { assigneeIds, ...dataTask } = data;
 
   const task = await db.query.tasks.findFirst({
     where: and(eq(tasks.id, taskId), isNull(tasks.deletedAt)),
@@ -99,25 +129,41 @@ export async function updateTask(
   }
 
   const isLeader = role === "lead";
+  const isOwner = task.createdById === userId;
 
   if (!isLeader) {
-    delete data.title;
+    delete dataTask.title;
   }
-  if (!data.title) {
-    delete data.title;
+  if (!dataTask.title) {
+    delete dataTask.title;
   }
-  if (!data.status) {
-    delete data.status;
+  if (!dataTask.status) {
+    delete dataTask.status;
   }
 
   await Promise.all([
-    db.update(tasks).set(data).where(eq(tasks.id, taskId)),
+    db.update(tasks).set(dataTask).where(eq(tasks.id, taskId)),
     createTaskLog({
-      ...data,
+      ...dataTask,
       taskId: taskId,
       userId,
       action: "update",
     }),
+    isOwner && assigneeIds
+      ? assigneeIds.length > 0
+        ? db
+            .insert(taskAssignees)
+            .values(
+              assigneeIds.map((id) => ({
+                userId: id,
+                taskId,
+              })),
+            )
+            .onConflictDoNothing({
+              target: [taskAssignees.userId, taskAssignees.taskId],
+            })
+        : db.delete(taskAssignees).where(eq(taskAssignees.taskId, taskId))
+      : Promise.resolve(),
   ]);
 }
 

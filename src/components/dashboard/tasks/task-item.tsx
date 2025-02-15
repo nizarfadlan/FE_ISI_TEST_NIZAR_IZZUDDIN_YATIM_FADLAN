@@ -36,6 +36,7 @@ export default function TaskItem({
     setValue("title", task.title);
     setValue("description", task.description);
     setValue("status", task.status);
+    setValue("assigneeIds", task.assigneeIds);
 
     setIsEditing(true);
   }, [task, setValue, setIsEditing]);
@@ -45,6 +46,7 @@ export default function TaskItem({
       title: "",
       description: "",
       status: "not_started",
+      assigneeIds: [],
     });
     setIsEditing(false);
   }, [reset, setIsEditing]);
@@ -75,6 +77,7 @@ export default function TaskItem({
           }}
           cancelEditing={cancelEditing}
           role={user?.role}
+          isOwner={user?.id === task.createdById}
         />
       ) : (
         <div className="flex items-center">
@@ -96,7 +99,7 @@ export default function TaskItem({
                 {task.title}
               </h3>
               <div className="flex items-center space-x-1">
-                {user?.role === "lead" && (
+                {user?.role === "lead" && user.id === task.createdById && (
                   <Button
                     variant="ghost"
                     onClick={() => deleteTask(task.id)}

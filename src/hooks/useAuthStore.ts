@@ -16,6 +16,7 @@ interface AuthState {
   loading: LoadingState;
   error: string | null;
   isAuthenticated: boolean;
+  isInitialized: boolean;
   initialize: () => Promise<void>;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -30,6 +31,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   error: null,
   isAuthenticated: false,
+  isInitialized: false,
 
   initialize: async () => {
     set({ loading: { ...get().loading, auth: true } });
@@ -75,7 +77,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       toast.error("Failed to initialize auth");
     } finally {
-      set({ loading: { ...get().loading, auth: false } });
+      set({ loading: { ...get().loading, auth: false }, isInitialized: true });
     }
   },
 
@@ -178,6 +180,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 }));
 
 export const initializeAuth = async () => {
-  const authStore = useAuthStore.getState();
-  await authStore.initialize();
+  try {
+    const authStore = useAuthStore.getState();
+
+    if (authStore.isInitialized) return;
+
+    await authStore.initialize();
+    return true;
+  } catch (error) {
+    console.error("Initialize auth error:", error);
+    throw error;
+  }
 };

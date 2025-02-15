@@ -6,6 +6,7 @@ import Overlay from "@/components/dashboard/sidebar/overlay";
 import SidebarProvider from "@/hooks/useSidebar";
 import Navbar from "@/components/dashboard/navbar";
 import ContainerDashboard from "@/components/dashboard/container";
+import { Toaster } from "sonner";
 
 export default function DashboardLayout({
   children,
@@ -15,6 +16,7 @@ export default function DashboardLayout({
   return (
     <Providers>
       <SidebarProvider>
+        <Toaster position="top-right" />
         <div className="relative top-0">
           <Overlay />
           <div className="flex h-full w-full bg-gray-100">

@@ -1,6 +1,6 @@
-import { queryClient } from "@/app/providers";
 import AddTaskForm from "@/components/dashboard/tasks/add-task-form";
 import { useModalDialog } from "@/hooks/useModalDialog";
+import { queryClient } from "@/lib/query";
 import { useCreateTask } from "@/server/tasks/query";
 import {
   createTaskRequestSchema,

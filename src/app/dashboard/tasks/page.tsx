@@ -9,11 +9,10 @@ import {
   updateTaskRequestSchema,
   type UpdateTaskRequestDTO,
 } from "@/server/tasks/type";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCcw } from "lucide-react";
 import { Fragment } from "react";
 import AddTask from "./add-task";
 import { ModalDialog } from "@/components/modal/modal-dialog";
-import { queryClient } from "@/app/providers";
 import type { TaskStatus } from "@/server/db/schema";
 import Loading from "@/components/loading";
 import { useForm } from "react-hook-form";
@@ -24,10 +23,12 @@ import {
   useUpdateStatusTask,
   useUpdateTask,
 } from "@/server/tasks/query";
+import { queryClient } from "@/lib/query";
+import { Button } from "@/components/button";
 
 export default function Tasks() {
   const { showModal } = useModalDialog();
-  const { data, isLoading, isFetching } = useGetTasks();
+  const { data, isLoading, isFetching, refetch } = useGetTasks();
 
   const { mutate: mutateUpdateStatus, isPending: isPendingUpdateStatus } =
     useUpdateStatusTask({
@@ -76,6 +77,12 @@ export default function Tasks() {
           title: "Create Task",
           content: <AddTask />,
         })
+      }
+      anotherChildHeader={
+        <Button onClick={() => refetch()} variant="outline">
+          <RefreshCcw />
+          Refresh
+        </Button>
       }
     >
       {(isPendingUpdateStatus || isPendingDelete || isPendingUpdate) && (

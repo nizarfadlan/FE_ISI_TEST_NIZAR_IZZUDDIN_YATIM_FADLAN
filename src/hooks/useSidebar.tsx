@@ -31,14 +31,12 @@ export default function SidebarProvider({
   const isMobile = useMedia("(max-width: 1024px)");
 
   const toggleSidebar = useCallback((state: boolean) => {
-    console.log("toggleSidebar");
     setIsCollapsed(state);
   }, []);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
-        console.log("useEffect handleResize");
         setIsCollapsed(false);
       }
     };
