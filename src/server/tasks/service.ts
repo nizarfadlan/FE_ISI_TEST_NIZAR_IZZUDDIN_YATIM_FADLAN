@@ -141,30 +141,54 @@ export async function updateTask(
     delete dataTask.status;
   }
 
-  await Promise.all([
-    db.update(tasks).set(dataTask).where(eq(tasks.id, taskId)),
-    createTaskLog({
-      ...dataTask,
-      taskId: taskId,
-      userId,
-      action: "update",
-    }),
-    isOwner && assigneeIds
-      ? assigneeIds.length > 0
-        ? db
-            .insert(taskAssignees)
-            .values(
-              assigneeIds.map((id) => ({
-                userId: id,
-                taskId,
-              })),
-            )
-            .onConflictDoNothing({
-              target: [taskAssignees.userId, taskAssignees.taskId],
-            })
-        : db.delete(taskAssignees).where(eq(taskAssignees.taskId, taskId))
-      : Promise.resolve(),
-  ]);
+  if (Object.keys(dataTask).length > 0) {
+    await db.update(tasks).set(dataTask).where(eq(tasks.id, taskId));
+  }
+
+  await createTaskLog({
+    ...dataTask,
+    taskId,
+    userId,
+    action: "update",
+  });
+
+  if (isOwner && assigneeIds) {
+    const assignees = await db.query.taskAssignees.findMany({
+      where: eq(taskAssignees.taskId, taskId),
+      columns: {
+        userId: true,
+      },
+    });
+
+    const existingAssigneeIds = new Set(
+      assignees.map((t) => t.userId).filter(Boolean),
+    );
+
+    const newAssigneeIds = new Set(assigneeIds);
+
+    const usersToAdd = [...newAssigneeIds].filter(
+      (id) => !existingAssigneeIds.has(id),
+    );
+    const usersToRemove = [...existingAssigneeIds].filter(
+      (id) => !newAssigneeIds.has(id),
+    );
+
+    if (usersToAdd.length > 0) {
+      await db
+        .insert(taskAssignees)
+        .values(usersToAdd.map((id) => ({ userId: id, taskId })));
+    }
+    if (usersToRemove.length > 0) {
+      await db
+        .delete(taskAssignees)
+        .where(
+          and(
+            eq(taskAssignees.taskId, taskId),
+            inArray(taskAssignees.userId, usersToRemove),
+          ),
+        );
+    }
+  }
 }
 
 export async function updateStatusTask(

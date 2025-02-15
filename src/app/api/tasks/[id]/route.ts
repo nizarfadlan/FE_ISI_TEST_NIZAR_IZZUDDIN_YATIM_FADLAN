@@ -22,9 +22,9 @@ export async function PATCH(
   try {
     const { data } = validation;
     const { id } = await params;
-    const response = await updateTask(data, id, user);
+    await updateTask(data, id, user);
 
-    return successResponse("Task updated successfully", response);
+    return successResponse("Task updated successfully");
   } catch (error) {
     if (error instanceof ClientError) {
       const { error: errorClient } = error.toJson();
