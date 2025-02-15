@@ -96,22 +96,24 @@ export function Card({
             <div
               className={anotherChildHeader ? "flex flex-row space-x-2" : ""}
             >
-              <Button
-                variant={colorVariantButton}
-                onClick={callbackButton}
-                className={cn(
-                  "px-4 py-4 sm:px-4 sm:py-3",
-                  positionButton === "left" ? "mr-4" : "",
-                )}
-                type="button"
-              >
-                {IconButton && <IconButton />}
-                {textButton && (
-                  <span className={IconButton && "hidden sm:block"}>
-                    {textButton}
-                  </span>
-                )}
-              </Button>
+              {textButton && (
+                <Button
+                  variant={colorVariantButton}
+                  onClick={callbackButton}
+                  className={cn(
+                    "px-4 py-4 sm:px-4 sm:py-3",
+                    positionButton === "left" ? "mr-4" : "",
+                  )}
+                  type="button"
+                >
+                  {IconButton && <IconButton />}
+                  {textButton && (
+                    <span className={IconButton && "hidden sm:block"}>
+                      {textButton}
+                    </span>
+                  )}
+                </Button>
+              )}
               {anotherChildHeader && anotherChildHeader}
             </div>
           ) : null}
