@@ -3,7 +3,6 @@
 import { useAuthStore } from "@/hooks/useAuthStore";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Button } from "../button";
 
 type MainLayoutProps = {
   children: ReactNode;
@@ -24,13 +23,19 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
             <div className="flex items-center">
               {isAuthenticated ? (
-                <Button variant="link">
-                  <Link href="/dashboard">Dashboard</Link>
-                </Button>
+                <Link
+                  href="/dashboard"
+                  className="ring-offset-background focus-visible:ring-ring inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 text-sm font-medium text-black underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0"
+                >
+                  Dashboard
+                </Link>
               ) : (
-                <Button variant="link">
-                  <Link href="/login">Login</Link>
-                </Button>
+                <Link
+                  href="/login"
+                  className="ring-offset-background focus-visible:ring-ring inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 text-sm font-medium text-black underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0"
+                >
+                  Login
+                </Link>
               )}
             </div>
           </div>
