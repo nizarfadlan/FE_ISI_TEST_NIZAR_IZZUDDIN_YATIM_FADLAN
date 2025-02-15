@@ -59,3 +59,23 @@ pnpm dev
 ```
 http://localhost:3000
 ```
+
+## Migration and Seeding
+
+1. Run generate
+
+```bash
+pnpm db:generate
+```
+
+2. Run the migration
+
+```bash
+pnpm db:migrate
+```
+
+3. Run the seed
+
+```bash
+pnpm db:seed
+```
