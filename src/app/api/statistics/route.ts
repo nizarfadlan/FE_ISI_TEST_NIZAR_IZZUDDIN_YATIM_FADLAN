@@ -1,5 +1,6 @@
 import { countTasks, countTasksByStatus } from "@/server/tasks/service";
 import { countUsers } from "@/server/users/service";
+import { HttpStatus } from "@/types/httpStatus.enum";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { requireAuth } from "@/utils/auth";
 import { ClientError } from "@/utils/error";
@@ -34,6 +35,10 @@ export async function GET() {
       );
     }
 
-    return errorResponse("Failed to fetch statistic", 500, error);
+    return errorResponse(
+      "Failed to fetch statistic",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

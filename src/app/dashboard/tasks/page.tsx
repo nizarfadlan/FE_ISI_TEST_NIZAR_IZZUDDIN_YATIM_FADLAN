@@ -143,7 +143,6 @@ export default function Tasks() {
                       deleteTask={(id: string) => {
                         mutateDelete({ id });
                       }}
-                      onTaskMove={handleDrop}
                     />
                   ))}
               </TaskColumn>

@@ -10,6 +10,7 @@ import type {
   GetUserResponseDTO,
   GetUsersResponseDTO,
   UpdatePasswordRequestDTO,
+  UpdateUserMeRequestDTO,
   UpdateUserRequestDTO,
 } from "./type";
 import { api, apiCall } from "@/lib/axios";
@@ -19,6 +20,26 @@ import {
   type DefaultMutationOptions,
 } from "@/lib/query";
 import type { IdDTO } from "../type";
+
+export function useGetProfile(
+  options?: QueryOptions<ApiResponse<GetUserResponseDTO>>,
+) {
+  return useQuery<ApiResponse<GetUserResponseDTO>>({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const result = (await apiCall(
+        api.get("/api/users/me"),
+      )) as ApiResponse<GetUserResponseDTO>;
+
+      if (!result.success) {
+        throw new ClientError(result.error.message, result.error.status);
+      }
+
+      return result;
+    },
+    ...options,
+  });
+}
 
 export function useGetUser(
   id: string,
@@ -107,11 +128,11 @@ export function useUpdateUser(
     ApiResponse<undefined>,
     unknown,
     unknown,
-    UpdateUserRequestDTO
+    UpdateUserMeRequestDTO
   >,
 ) {
-  return useMutation<ApiResponse<undefined>, unknown, UpdateUserRequestDTO>({
-    mutationFn: async (data: UpdateUserRequestDTO) => {
+  return useMutation<ApiResponse<undefined>, unknown, UpdateUserMeRequestDTO>({
+    mutationFn: async (data: UpdateUserMeRequestDTO) => {
       const result = (await apiCall(
         api.patch("/api/users", data),
       )) as ApiResponse<undefined>;

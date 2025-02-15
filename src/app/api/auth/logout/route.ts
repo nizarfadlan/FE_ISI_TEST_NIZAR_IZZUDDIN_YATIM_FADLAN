@@ -1,5 +1,6 @@
 import { COOKIE_ACCESS_TOKEN, COOKIE_REFRESH_TOKEN } from "@/constant";
 import { logoutUser } from "@/server/auth/service";
+import { HttpStatus } from "@/types/httpStatus.enum";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { requireAuth } from "@/utils/auth";
 import { ClientError } from "@/utils/error";
@@ -30,6 +31,10 @@ export async function POST() {
       );
     }
 
-    return errorResponse("An error occurred while logging out", 500, error);
+    return errorResponse(
+      "An error occurred while logging out",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

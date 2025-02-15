@@ -76,6 +76,11 @@ export const updateUserRequestSchema = userUpdateSchema.omit({
 });
 export type UpdateUserRequestDTO = z.infer<typeof updateUserRequestSchema>;
 
+export const updateUserMeRequestSchema = updateUserRequestSchema.omit({
+  role: true,
+});
+export type UpdateUserMeRequestDTO = z.infer<typeof updateUserMeRequestSchema>;
+
 export const updatePasswordRequestSchema = z
   .object({
     oldPassword: z.string(),

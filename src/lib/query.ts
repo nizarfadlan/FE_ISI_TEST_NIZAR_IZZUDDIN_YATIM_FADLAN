@@ -1,10 +1,5 @@
 import { ClientError } from "@/utils/error";
-import {
-  QueryClient,
-  type MutationOptions,
-  type QueryKey,
-  type UseQueryOptions,
-} from "@tanstack/react-query";
+import { QueryClient, type MutationOptions } from "@tanstack/react-query";
 import type { FieldValues, UseFormSetError } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -29,16 +24,6 @@ export interface DefaultMutationOptions<
   successMessage?: string;
   errorMessage?: string;
 }
-
-export type QueryOptions<
-  TQueryFnData = unknown,
-  TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey,
-> = Omit<
-  UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-  "queryKey" | "queryFn"
->;
 
 export function createMutationOptions<
   TData = unknown,

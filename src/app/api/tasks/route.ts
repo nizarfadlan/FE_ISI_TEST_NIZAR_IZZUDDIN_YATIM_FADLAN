@@ -17,7 +17,11 @@ export async function GET() {
 
     return successResponse("Tasks fetched successfully", response);
   } catch (error) {
-    return errorResponse("Failed to fetch tasks", 500, error);
+    return errorResponse(
+      "Failed to fetch tasks",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }
 
@@ -53,6 +57,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return errorResponse("Failed to create task", 500, error);
+    return errorResponse(
+      "Failed to create task",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

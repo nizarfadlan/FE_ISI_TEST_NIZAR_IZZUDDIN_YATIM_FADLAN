@@ -140,3 +140,10 @@ export function relativeTime(date: Date | string) {
   ensureIndonesianLocale();
   return moment(date).tz("Asia/Jakarta").fromNow();
 }
+
+export function momentDateWithTime(date: Date | string) {
+  ensureIndonesianLocale();
+  return moment(date)
+    .tz("Asia/Jakarta")
+    .format("dddd, DD MMMM YYYY [pukul] HH.mm");
+}

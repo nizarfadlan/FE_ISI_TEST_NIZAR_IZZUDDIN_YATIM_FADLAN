@@ -5,6 +5,7 @@ import { ClientError } from "@/utils/error";
 import { validateRequest } from "@/utils/validation";
 import { requireAuth } from "@/utils/auth";
 import { NextResponse, type NextRequest } from "next/server";
+import { HttpStatus } from "@/types/httpStatus.enum";
 
 export async function PATCH(
   request: NextRequest,
@@ -34,7 +35,11 @@ export async function PATCH(
       );
     }
 
-    return errorResponse("Failed to update task", 500, error);
+    return errorResponse(
+      "Failed to update task",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }
 
@@ -60,6 +65,10 @@ export async function DELETE(
       );
     }
 
-    return errorResponse("Failed to delete task", 500, error);
+    return errorResponse(
+      "Failed to delete task",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

@@ -71,7 +71,7 @@ export const tasks = pgTable("tasks", {
   id: uuid("id").primaryKey().$defaultFn(uuidv7),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  status: taskStatusEnum("status").default("not_started").notNull(),
+  status: taskStatusEnum("status").notNull(),
   createdById: uuid("created_by_id")
     .references(() => users.id)
     .notNull(),
@@ -156,6 +156,7 @@ export const taskLogsRelations = relations(taskLogs, ({ one }) => ({
 }));
 
 export const taskLogInsertSchema = createInsertSchema(taskLogs);
+export const taskLogSelectSchema = createSelectSchema(taskLogs);
 export type InsertTaskLog = z.infer<typeof taskLogInsertSchema>;
 
 export const refreshToken = pgTable("refresh_token", {

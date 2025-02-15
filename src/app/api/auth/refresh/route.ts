@@ -6,6 +6,7 @@ import {
 } from "@/constant";
 import { env } from "@/env";
 import { refreshUserToken } from "@/server/auth/service";
+import { HttpStatus } from "@/types/httpStatus.enum";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { ClientError } from "@/utils/error";
 import { cookies } from "next/headers";
@@ -16,7 +17,7 @@ export async function POST() {
     const refreshToken = cookieStore.get(COOKIE_REFRESH_TOKEN);
 
     if (!refreshToken) {
-      return errorResponse("No refresh token found", 400);
+      return errorResponse("No refresh token found", HttpStatus.BAD_REQUEST);
     }
 
     const response = await refreshUserToken({
@@ -54,7 +55,7 @@ export async function POST() {
 
     return errorResponse(
       "An error occurred while refreshing the token",
-      500,
+      HttpStatus.INTERNAL_SERVER_ERROR,
       error,
     );
   }

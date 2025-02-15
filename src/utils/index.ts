@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ClientError } from "./error";
 
 /**
  * Combine multiple class names into a single string.
@@ -19,4 +20,17 @@ export function toSentenceCase(str: string) {
     .replace(/^\w/, (c) => c.toUpperCase())
     .replace(/\s+/g, " ")
     .trim();
+}
+
+export function encodeCursor(value: string): string {
+  return btoa(value);
+}
+
+export function decodeCursor(cursor: string): number {
+  try {
+    const decoded = atob(cursor) as unknown as number;
+    return decoded;
+  } catch {
+    throw new ClientError("Invalid cursor", 400);
+  }
 }

@@ -1,33 +1,19 @@
 "use client";
 
 import {
-  CheckSquare,
-  Home,
   LogOut,
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
-  Users,
   XIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/hooks/useAuthStore";
-import type { RoutesDashboard } from "@/types";
 import { useSidebar } from "@/hooks/useSidebar";
 import { useRef } from "react";
 import { useOutSideClick } from "@/hooks/useOutSideClick";
 import { cn } from "@/utils";
 import SidebarLinks from "./links";
 import { Button } from "../../button";
-
-const navigation: RoutesDashboard[] = [
-  { name: "Dashboard", pathName: "/dashboard", icon: Home },
-  { name: "Task List", pathName: "/dashboard/tasks", icon: CheckSquare },
-  {
-    name: "Users",
-    pathName: "/dashboard/users",
-    icon: Users,
-    roles: ["lead"],
-  },
-];
+import { navigation } from "@/constant";
 
 export default function Sidebar() {
   const { logout } = useAuthStore();

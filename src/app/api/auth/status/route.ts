@@ -1,6 +1,7 @@
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { ClientError } from "@/utils/error";
 import { hasAccessToken } from "@/server/auth/service";
+import { HttpStatus } from "@/types/httpStatus.enum";
 
 export async function GET() {
   try {
@@ -19,6 +20,10 @@ export async function GET() {
       );
     }
 
-    return errorResponse("An error occurred while status", 500, error);
+    return errorResponse(
+      "An error occurred while status",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

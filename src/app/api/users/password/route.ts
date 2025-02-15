@@ -5,6 +5,7 @@ import { ClientError } from "@/utils/error";
 import { validateRequest } from "@/utils/validation";
 import { requireAuth } from "@/utils/auth";
 import { NextResponse, type NextRequest } from "next/server";
+import { HttpStatus } from "@/types/httpStatus.enum";
 
 export async function PATCH(request: NextRequest) {
   const user = await requireAuth();
@@ -34,6 +35,10 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    return errorResponse("Failed to update password", 500, error);
+    return errorResponse(
+      "Failed to update password",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

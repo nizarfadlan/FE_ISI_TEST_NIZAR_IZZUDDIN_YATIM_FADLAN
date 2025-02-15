@@ -5,9 +5,11 @@ import {
   Calendar,
   CheckCircle2,
   Circle,
+  Clock,
   Edit,
   Trash,
   User,
+  XCircle,
 } from "lucide-react";
 import type { GetTaskDTO, UpdateTaskRequestDTO } from "@/server/tasks/type";
 import { momentDate } from "@/utils/date";
@@ -25,7 +27,6 @@ interface TaskItemProps {
   checkTask: (id: string, status: TaskStatus) => void;
   saveEdit: (id: string) => void;
   deleteTask: (id: string) => void;
-  onTaskMove: (id: string, status: TaskStatus) => void;
 }
 
 export const TaskItemTypes = {
@@ -38,7 +39,6 @@ export default function TaskItem({
   checkTask,
   saveEdit,
   deleteTask,
-  onTaskMove,
 }: TaskItemProps) {
   const { user } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
@@ -48,15 +48,6 @@ export default function TaskItem({
   const [{ isDragging }, drag] = useDrag(() => ({
     type: TaskItemTypes.TASK,
     item: { id: task.id, status: task.status },
-    // begin: () => {
-    //   setIsEditing(false);
-    // },
-    end: (item, monitor) => {
-      const dropResult = monitor.getDropResult<{ status: TaskStatus }>();
-      if (item && dropResult) {
-        onTaskMove(item.id, dropResult.status);
-      }
-    },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -123,6 +114,10 @@ export default function TaskItem({
           >
             {task.status === "done" ? (
               <CheckCircle2 className="h-6 w-6 text-green-500" />
+            ) : task.status === "on_progress" ? (
+              <Clock className="h-6 w-6 text-yellow-500" />
+            ) : task.status === "reject" ? (
+              <XCircle className="h-6 w-6 text-red-500" />
             ) : (
               <Circle className="h-6 w-6 text-gray-400" />
             )}

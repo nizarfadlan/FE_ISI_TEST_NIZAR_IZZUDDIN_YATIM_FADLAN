@@ -34,6 +34,10 @@ export async function PATCH(
       );
     }
 
-    return errorResponse("Failed to restore user", 500, error);
+    return errorResponse(
+      "Failed to restore user",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

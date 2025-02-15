@@ -31,6 +31,10 @@ export async function GET() {
       );
     }
 
-    return errorResponse("Failed to fetch profile", 500, error);
+    return errorResponse(
+      "Failed to fetch profile",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

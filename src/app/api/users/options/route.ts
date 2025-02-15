@@ -20,6 +20,10 @@ export async function GET() {
 
     return successResponse("User options fetched successfully", response);
   } catch (error) {
-    return errorResponse("Failed to fetch user options", 500, error);
+    return errorResponse(
+      "Failed to fetch user options",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

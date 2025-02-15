@@ -36,7 +36,11 @@ export async function GET(
       );
     }
 
-    return errorResponse("Failed to retrieve user", 500, error);
+    return errorResponse(
+      "Failed to retrieve user",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }
 
@@ -75,7 +79,11 @@ export async function PATCH(
       );
     }
 
-    return errorResponse("Failed to update user", 500, error);
+    return errorResponse(
+      "Failed to update user",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }
 
@@ -108,6 +116,10 @@ export async function DELETE(
       );
     }
 
-    return errorResponse("Failed to delete user", 500, error);
+    return errorResponse(
+      "Failed to delete user",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

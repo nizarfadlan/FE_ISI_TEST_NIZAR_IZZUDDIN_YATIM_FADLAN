@@ -38,7 +38,7 @@ export const createTaskRequestSchema = taskInsertSchema
   });
 export type CreateTaskRequestDTO = z.infer<typeof createTaskRequestSchema>;
 
-export const updateStatusTaskRequestSchema = taskUpdateSchema.pick({
+export const updateStatusTaskRequestSchema = taskInsertSchema.pick({
   status: true,
 });
 export type UpdateStatusTaskRequestDTO = z.infer<

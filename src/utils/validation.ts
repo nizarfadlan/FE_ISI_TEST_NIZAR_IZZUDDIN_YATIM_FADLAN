@@ -2,6 +2,7 @@ import type { z, ZodSchema } from "zod";
 import { errorResponse } from "./apiResponse";
 import type { NextResponse } from "next/server";
 import type { ErrorResponse } from "@/types";
+import { HttpStatus } from "@/types/httpStatus.enum";
 
 export async function validateRequest<T extends ZodSchema>(
   req: Request,
@@ -17,15 +18,26 @@ export async function validateRequest<T extends ZodSchema>(
         message: err.message,
       }));
 
-      return errorResponse("Validation failed", 422, formattedErrors);
+      return errorResponse(
+        "Validation failed",
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        formattedErrors,
+      );
     }
 
     return { data: result.data };
   } catch (error) {
     if (error instanceof Error && error.message.includes("JSON")) {
-      return errorResponse("Invalid JSON in request body", 400);
+      return errorResponse(
+        "Invalid JSON in request body",
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    return errorResponse("Internal server error during validation", 500, error);
+    return errorResponse(
+      "Internal server error during validation",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

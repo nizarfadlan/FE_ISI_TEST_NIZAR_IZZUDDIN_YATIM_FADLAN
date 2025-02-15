@@ -1,7 +1,7 @@
 import { createUser, getUsers, updateUser } from "@/server/users/service";
 import {
   createUserRequestSchema,
-  updateUserRequestSchema,
+  updateUserMeRequestSchema,
 } from "@/server/users/type";
 import { HttpStatus } from "@/types/httpStatus.enum";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
@@ -25,7 +25,11 @@ export async function GET() {
 
     return successResponse("Users fetched successfully", response);
   } catch (error) {
-    return errorResponse("Failed to fetch users", 500, error);
+    return errorResponse(
+      "Failed to fetch users",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }
 
@@ -60,7 +64,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return errorResponse("Failed to create user", 500, error);
+    return errorResponse(
+      "Failed to create user",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }
 
@@ -68,7 +76,7 @@ export async function PATCH(request: NextRequest) {
   const user = await requireAuth();
   if (user instanceof NextResponse) return user;
 
-  const validation = await validateRequest(request, updateUserRequestSchema);
+  const validation = await validateRequest(request, updateUserMeRequestSchema);
   if (validation instanceof NextResponse) {
     return validation;
   }
@@ -89,6 +97,10 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    return errorResponse("Failed to update user", 500, error);
+    return errorResponse(
+      "Failed to update user",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

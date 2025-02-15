@@ -7,6 +7,7 @@ import {
 import { env } from "@/env";
 import { loginUser } from "@/server/auth/service";
 import { loginFormRequestSchema } from "@/server/auth/type";
+import { HttpStatus } from "@/types/httpStatus.enum";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { ClientError } from "@/utils/error";
 import { validateRequest } from "@/utils/validation";
@@ -51,6 +52,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return errorResponse("An error occurred while logging in", 500, error);
+    return errorResponse(
+      "An error occurred while logging in",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }

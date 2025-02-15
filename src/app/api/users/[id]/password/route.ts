@@ -45,6 +45,10 @@ export async function PATCH(
       );
     }
 
-    return errorResponse("Failed to update password", 500, error);
+    return errorResponse(
+      "Failed to update password",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      error,
+    );
   }
 }
