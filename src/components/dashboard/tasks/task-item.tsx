@@ -100,7 +100,7 @@ export default function TaskItem({
     <div
       ref={drag as unknown as React.RefObject<HTMLDivElement>}
       className={cn(
-        "group cursor-move rounded-lg border-b border-gray-200 p-4 hover:bg-gray-50",
+        "group cursor-move rounded-lg bg-gray-50 p-4 shadow-sm",
         isDragging && "opacity-50",
       )}
     >

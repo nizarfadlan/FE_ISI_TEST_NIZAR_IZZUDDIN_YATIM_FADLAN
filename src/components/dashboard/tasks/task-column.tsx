@@ -41,7 +41,7 @@ export default function TaskColumn({
             <p className="text-gray-500">Drop here</p>
           </div>
         )}
-        {children}
+        <div className="flex flex-col gap-2">{children}</div>
       </div>
     </div>
   );
