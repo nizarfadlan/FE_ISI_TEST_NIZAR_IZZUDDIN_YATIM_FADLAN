@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Calendar, CheckCircle2, Circle, Edit, Trash } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle2,
+  Circle,
+  Edit,
+  Trash,
+  User,
+} from "lucide-react";
 import type { GetTaskDTO, UpdateTaskRequestDTO } from "@/server/tasks/type";
 import { momentDate } from "@/utils/date";
 import type { TaskStatus } from "@/server/db/schema";
@@ -10,7 +17,7 @@ import type { UseFormReturn } from "react-hook-form";
 import EditTaskForm from "./edit-task-form";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { Button } from "@/components/button";
-// import EditTodoForm from './EditTodoForm';
+import { useDrag } from "react-dnd";
 
 interface TaskItemProps {
   task: GetTaskDTO;
@@ -18,7 +25,12 @@ interface TaskItemProps {
   checkTask: (id: string, status: TaskStatus) => void;
   saveEdit: (id: string) => void;
   deleteTask: (id: string) => void;
+  onTaskMove: (id: string, status: TaskStatus) => void;
 }
+
+export const TaskItemTypes = {
+  TASK: "task",
+};
 
 export default function TaskItem({
   task,
@@ -26,11 +38,29 @@ export default function TaskItem({
   checkTask,
   saveEdit,
   deleteTask,
+  onTaskMove,
 }: TaskItemProps) {
   const { user } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
 
   const { setValue, reset } = formEdit;
+
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: TaskItemTypes.TASK,
+    item: { id: task.id, status: task.status },
+    // begin: () => {
+    //   setIsEditing(false);
+    // },
+    end: (item, monitor) => {
+      const dropResult = monitor.getDropResult<{ status: TaskStatus }>();
+      if (item && dropResult) {
+        onTaskMove(item.id, dropResult.status);
+      }
+    },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
 
   const startEditing = useCallback(() => {
     setValue("title", task.title);
@@ -67,7 +97,13 @@ export default function TaskItem({
   };
 
   return (
-    <div className="border-b border-gray-200 p-4 hover:bg-gray-50">
+    <div
+      ref={drag as unknown as React.RefObject<HTMLDivElement>}
+      className={cn(
+        "group cursor-move rounded-lg border-b border-gray-200 p-4 hover:bg-gray-50",
+        isDragging && "opacity-50",
+      )}
+    >
       {isEditing ? (
         <EditTaskForm
           formEdit={formEdit}
@@ -92,19 +128,19 @@ export default function TaskItem({
             )}
           </button>
           <div className="flex-1">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between space-x-2">
               <h3
                 className={`text-lg ${task.status === "done" ? "text-gray-500 line-through" : "text-gray-900"}`}
               >
                 {task.title}
               </h3>
-              <div className="flex items-center space-x-1">
+              <div className="invisible flex items-center space-x-1 opacity-0 transition-opacity duration-200 group-hover:visible group-hover:opacity-100">
                 {user?.role === "lead" && user.id === task.createdById && (
                   <Button
                     variant="ghost"
                     onClick={() => deleteTask(task.id)}
                     size="icon"
-                    className="text-red-500 hover:bg-red-200 hover:text-red-700"
+                    className="h-7 w-7 text-red-500 hover:bg-red-200 hover:text-red-700"
                   >
                     <Trash className="h-5 w-5" />
                   </Button>
@@ -113,7 +149,7 @@ export default function TaskItem({
                   onClick={startEditing}
                   variant="ghost"
                   size="icon"
-                  className="text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+                  className="h-7 w-7 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
                 >
                   <Edit className="h-5 w-5" />
                 </Button>
@@ -122,8 +158,9 @@ export default function TaskItem({
             {task.description && (
               <p className="mt-1 text-gray-600">{task.description}</p>
             )}
-            <div className="mt-2 flex items-center space-x-4">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <span className="flex items-center text-sm text-gray-600">
+                <User className="mr-1 h-4 w-4" />
                 {task.createdBy}
               </span>
               <span className="flex items-center text-sm text-gray-600">

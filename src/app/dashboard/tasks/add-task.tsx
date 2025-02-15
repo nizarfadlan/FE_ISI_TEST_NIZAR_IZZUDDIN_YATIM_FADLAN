@@ -16,6 +16,7 @@ export default function AddTask() {
     mode: "onChange",
     defaultValues: {
       status: "not_started",
+      assigneeIds: [],
     },
   });
 

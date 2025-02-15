@@ -10,10 +10,10 @@ import {
   type UpdateTaskRequestDTO,
 } from "@/server/tasks/type";
 import { Plus, RefreshCcw } from "lucide-react";
-import { Fragment } from "react";
+import { useCallback } from "react";
 import AddTask from "./add-task";
 import { ModalDialog } from "@/components/modal/modal-dialog";
-import type { TaskStatus } from "@/server/db/schema";
+import { TaskStatusValues, type TaskStatus } from "@/server/db/schema";
 import Loading from "@/components/loading";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +25,12 @@ import {
 } from "@/server/tasks/query";
 import { queryClient } from "@/lib/query";
 import { Button } from "@/components/button";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from "react-dnd-touch-backend";
+import TaskColumn from "@/components/dashboard/tasks/task-column";
+import { toSentenceCase } from "@/utils";
+import useMedia from "@/hooks/useMedia";
 
 export default function Tasks() {
   const { showModal } = useModalDialog();
@@ -44,6 +50,9 @@ export default function Tasks() {
   const form = useForm<UpdateTaskRequestDTO>({
     resolver: zodResolver(updateTaskRequestSchema),
     mode: "onChange",
+    defaultValues: {
+      assigneeIds: [],
+    },
   });
 
   const { mutate: mutateUpdate, isPending: isPendingUpdate } = useUpdateTask({
@@ -66,72 +75,96 @@ export default function Tasks() {
     },
   });
 
-  return (
-    <Card
-      title="Tasks"
-      description="List of tasks"
-      IconButton={Plus}
-      textButton="Create Task"
-      callbackButton={() =>
-        showModal({
-          title: "Create Task",
-          content: <AddTask />,
-        })
-      }
-      anotherChildHeader={
-        <Button onClick={() => refetch()} variant="outline">
-          <RefreshCcw />
-          Refresh
-        </Button>
-      }
-    >
-      {(isPendingUpdateStatus || isPendingDelete || isPendingUpdate) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-100 backdrop-blur-sm transition-opacity duration-200">
-          <div className="w-full max-w-xs scale-100 transform rounded-lg bg-white p-6 shadow-lg transition-transform duration-200">
-            <Loading
-              className="text-black"
-              text={isPendingDelete ? "Delete task" : "Update task"}
-            />
-          </div>
-        </div>
-      )}
-      {data?.success && data.data && !isLoading && !isFetching ? (
-        <Fragment>
-          {data.data.length > 0 ? (
-            data.data.map((todo) => (
-              <TaskItem
-                key={todo.id}
-                task={todo}
-                formEdit={form}
-                checkTask={(id: string, status: TaskStatus) => {
-                  const newStatus = status !== "done" ? "done" : "not_started";
+  const handleDrop = useCallback(
+    (id: string, newStatus: TaskStatus) => {
+      mutateUpdateStatus({ id, status: newStatus });
+    },
+    [mutateUpdateStatus],
+  );
 
-                  mutateUpdateStatus({
-                    id,
-                    status: newStatus,
-                  });
-                }}
-                saveEdit={(id: string) => {
-                  mutateUpdate({
-                    id,
-                    ...form.getValues(),
-                  });
-                }}
-                deleteTask={(id: string) => {
-                  mutateDelete({ id });
-                }}
+  const isMobile = useMedia("(max-width: 768px)");
+  const Backend = isMobile ? TouchBackend : HTML5Backend;
+
+  return (
+    <DndProvider backend={Backend}>
+      <Card
+        title="Tasks"
+        description="List of tasks"
+        IconButton={Plus}
+        textButton="Create Task"
+        callbackButton={() =>
+          showModal({
+            title: "Create Task",
+            content: <AddTask />,
+          })
+        }
+        anotherChildHeader={
+          <Button onClick={() => refetch()} variant="outline">
+            <RefreshCcw />
+            Refresh
+          </Button>
+        }
+      >
+        {(isPendingUpdateStatus || isPendingDelete || isPendingUpdate) && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-100 backdrop-blur-sm transition-opacity duration-200">
+            <div className="w-full max-w-xs scale-100 transform rounded-lg bg-white p-6 shadow-lg transition-transform duration-200">
+              <Loading
+                className="text-black"
+                text={isPendingDelete ? "Delete task" : "Update task"}
               />
-            ))
-          ) : (
-            <p className="text-center">No todos found</p>
-          )}
-        </Fragment>
-      ) : (
-        Array.from({ length: 5 }).map((_, index) => (
-          <TodoItemSkeleton key={index} />
-        ))
-      )}
-      <ModalDialog />
-    </Card>
+            </div>
+          </div>
+        )}
+        {data?.success && data.data && !isLoading && !isFetching ? (
+          <div className="flex flex-col gap-4 lg:flex-row">
+            {TaskStatusValues.map((status) => (
+              <TaskColumn key={status} status={status} onDrop={handleDrop}>
+                {(data?.data ?? [])
+                  .filter((task) => task.status === status)
+                  .map((task) => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      formEdit={form}
+                      checkTask={(id: string, status: TaskStatus) => {
+                        const newStatus =
+                          status !== "done" ? "done" : "not_started";
+                        mutateUpdateStatus({
+                          id,
+                          status: newStatus,
+                        });
+                      }}
+                      saveEdit={(id: string) => {
+                        mutateUpdate({
+                          id,
+                          ...form.getValues(),
+                        });
+                      }}
+                      deleteTask={(id: string) => {
+                        mutateDelete({ id });
+                      }}
+                      onTaskMove={handleDrop}
+                    />
+                  ))}
+              </TaskColumn>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 md:flex-row">
+            {TaskStatusValues.map((status) => (
+              <div key={status} className="flex-1 rounded-md bg-gray-100 p-2">
+                <h3 className="mb-2 text-lg font-semibold">
+                  {toSentenceCase(status)}
+                </h3>
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <TodoItemSkeleton key={index} />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+        <ModalDialog />
+      </Card>
+    </DndProvider>
   );
 }
