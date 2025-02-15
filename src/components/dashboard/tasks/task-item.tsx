@@ -129,11 +129,7 @@ export default function TaskItem({
           </button>
           <div className="flex-1">
             <div className="flex items-center justify-between space-x-2">
-              <h3
-                className={`text-lg ${task.status === "done" ? "text-gray-500 line-through" : "text-gray-900"}`}
-              >
-                {task.title}
-              </h3>
+              <h3 className="text-lg text-gray-900">{task.title}</h3>
               <div className="invisible flex items-center space-x-1 opacity-0 transition-opacity duration-200 group-hover:visible group-hover:opacity-100">
                 {user?.role === "lead" && user.id === task.createdById && (
                   <Button

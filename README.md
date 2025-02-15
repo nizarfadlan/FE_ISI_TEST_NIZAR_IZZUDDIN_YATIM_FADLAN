@@ -1,29 +1,61 @@
-# Create T3 App
+# TODO List
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+## Introduction
 
-## What's next? How do I make an app with this?
+This is a simple TODO list application that allows users to add, edit, and delete tasks. The application is built using Next.js, Tailwind CSS, PostgreSQL, and Drizzle.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Installation
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+1. Clone the repository
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+```bash
+git clone
+```
 
-## Learn More
+2. Install the dependencies
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+```bash
+pnpm install
+```
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+3. Copy the `.env.example` file to `.env` and update the environment variables
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+```bash
+cp .env.example .env
+```
 
-## How do I deploy this?
+## Running the application
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+### Docker Compose
+
+1. Start the application
+
+```bash
+docker-compose up --build
+```
+
+2. Open the application in your browser
+
+```
+http://localhost:3000
+```
+
+### Development
+
+1. Start the PostgreSQL database or use the existing one
+
+```bash
+docker-compose up -d fe-isi-test-nizar-izzuddin-yatim-fadlan-db
+```
+
+2. Start the application
+
+```bash
+pnpm dev
+```
+
+3. Open the application in your browser
+
+```
+http://localhost:3000
+```

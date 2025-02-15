@@ -7,7 +7,7 @@ COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 RUN \
   if [ -f yarn.lock ]; then npm install --global yarn && yarn install --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then npm install --global pnpm && pnpm i; \
+  elif [ -f pnpm-lock.yaml ]; then npm install --global pnpm && pnpm install --frozen-lockfile; \
   # Allow install without lockfile, so example works even without Node.js installed locally
   else echo "Warning: Lockfile not found. It is recommended to commit lockfiles to version control." && npm install; \
   fi
@@ -42,12 +42,10 @@ USER nextjs
 
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package.json /app/yarn.lock* /app/package-lock.json* /app/pnpm-lock.yaml* ./
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-
 EXPOSE 3000
-
 CMD ["node", "server.js"]

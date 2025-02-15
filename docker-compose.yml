@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     environment:
       POSTGRES_HOST: "fe-isi-test-nizar-izzuddin-yatim-fadlan-db"
-      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_PORT: "5432"
       POSTGRES_DBNAME: ${POSTGRES_DBNAME}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
