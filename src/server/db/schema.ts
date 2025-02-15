@@ -62,7 +62,6 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const userSelectSchema = createSelectSchema(users);
 export const userInsertSchema = createInsertSchema(users);
 export const userUpdateSchema = createUpdateSchema(users);
-
 export type User = z.infer<typeof userSelectSchema>;
 
 export const tasks = pgTable("tasks", {
@@ -94,8 +93,31 @@ export const tasksRelations = relations(tasks, ({ one, many }) => ({
 export const taskSelectSchema = createSelectSchema(tasks);
 export const taskInsertSchema = createInsertSchema(tasks);
 export const taskUpdateSchema = createUpdateSchema(tasks);
-
 export type Task = z.infer<typeof taskSelectSchema>;
+
+// export const taskAssignees = pgTable("task_assignees", {
+//   id: uuid("id").primaryKey().$defaultFn(uuidv7),
+//   taskId: uuid("task_id")
+//     .references(() => tasks.id)
+//     .notNull(),
+//   userId: uuid("user_id")
+//     .references(() => users.id)
+//     .notNull(),
+// });
+
+// export const taskAssigneesRelations = relations(taskAssignees, ({ one }) => ({
+//   task: one(tasks, {
+//     fields: [taskAssignees.taskId],
+//     references: [tasks.id],
+//   }),
+//   user: one(users, {
+//     fields: [taskAssignees.userId],
+//     references: [users.id],
+//   }),
+// }));
+
+// export const taskAssigneesInsertSchema = createInsertSchema(taskAssignees);
+// export type InsertTaskAssignee = z.infer<typeof taskAssigneesInsertSchema>;
 
 export const taskLogs = pgTable("task_logs", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),

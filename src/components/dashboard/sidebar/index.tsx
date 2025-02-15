@@ -90,7 +90,7 @@ export default function Sidebar() {
       <ul className="sidebar-links mb-auto mt-6 flex h-full w-full flex-col justify-between overflow-y-auto overflow-x-clip pt-1">
         <SidebarLinks routes={navigation} />
         <li
-          className="my-[3px] mt-auto flex cursor-pointer items-center px-8 text-gray-600 hover:text-indigo-600"
+          className="my-[3px] mt-auto flex cursor-pointer items-center px-8 text-gray-800 hover:text-indigo-600"
           onClick={() => logout()}
         >
           <LogOut className="h-5 w-5" />

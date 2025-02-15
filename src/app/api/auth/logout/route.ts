@@ -1,18 +1,20 @@
 import { COOKIE_ACCESS_TOKEN, COOKIE_REFRESH_TOKEN } from "@/constant";
 import { logoutUser } from "@/server/auth/service";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
+import { requireAuth } from "@/utils/auth";
 import { ClientError } from "@/utils/error";
-import type { JwtPayload } from "@/utils/jwt";
-import { withAuth } from "@/utils/withAuth";
 import { cookies } from "next/headers";
-import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-async function handler(_: NextRequest, jwtPayload: JwtPayload) {
+export async function POST() {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
+
   try {
     const cookieStore = await cookies();
 
     await logoutUser({
-      userId: jwtPayload.userId,
+      userId: user.userId,
     });
     cookieStore.delete(COOKIE_ACCESS_TOKEN);
     cookieStore.delete(COOKIE_REFRESH_TOKEN);
@@ -31,5 +33,3 @@ async function handler(_: NextRequest, jwtPayload: JwtPayload) {
     return errorResponse("An error occurred while logging out", 500, error);
   }
 }
-
-export const POST = withAuth(handler);

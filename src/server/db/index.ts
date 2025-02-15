@@ -12,7 +12,9 @@ const globalForDb = globalThis as unknown as {
   conn: postgres.Sql | undefined;
 };
 
-const DATABASE_URL = `postgres://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DBNAME}`;
+const DATABASE_URL = process.env.SKIP_ENV_VALIDATION
+  ? "postgres://user:password@localhost:5432/db"
+  : `postgres://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DBNAME}`;
 
 const conn = globalForDb.conn ?? postgres(DATABASE_URL);
 if (env.NODE_ENV !== "production") globalForDb.conn = conn;

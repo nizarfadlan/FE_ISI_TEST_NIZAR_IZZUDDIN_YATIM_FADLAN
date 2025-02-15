@@ -25,7 +25,7 @@ import {
   useUpdateTask,
 } from "@/server/tasks/query";
 
-export default function Todos() {
+export default function Tasks() {
   const { showModal } = useModalDialog();
   const { data, isLoading, isFetching } = useGetTasks();
 
@@ -75,7 +75,6 @@ export default function Todos() {
         showModal({
           title: "Create Task",
           content: <AddTask />,
-          actionLabel: "Save",
         })
       }
     >
@@ -89,7 +88,7 @@ export default function Todos() {
           </div>
         </div>
       )}
-      {data?.data && !isLoading && !isFetching ? (
+      {data?.success && data.data && !isLoading && !isFetching ? (
         <Fragment>
           {data.data.length > 0 ? (
             data.data.map((todo) => (

@@ -46,7 +46,7 @@ export default function SidebarLinks({
                 className={cn(
                   activeRoute(route.pathName)
                     ? "font-medium text-indigo-600"
-                    : "text-gray-600 group-hover:text-indigo-600",
+                    : "text-gray-800 group-hover:text-indigo-600",
                 )}
               >
                 {route.icon ? (
@@ -60,7 +60,7 @@ export default function SidebarLinks({
                   "leading-1 ml-4 flex lg:hidden",
                   activeRoute(route.pathName)
                     ? "font-medium text-indigo-600"
-                    : "text-gray-600 group-hover:text-indigo-600",
+                    : "text-gray-800 group-hover:text-indigo-600",
                   { "lg:block": !isCollapsed },
                 )}
               >

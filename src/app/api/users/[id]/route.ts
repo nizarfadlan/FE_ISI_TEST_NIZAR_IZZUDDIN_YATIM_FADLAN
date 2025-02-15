@@ -1,27 +1,59 @@
-import type { IdDTO } from "@/server/type";
-import { deleteUser, updateUser } from "@/server/users/service";
+import { deleteUser, getUser, updateUser } from "@/server/users/service";
 import { updateUserRequestSchema } from "@/server/users/type";
 import { HttpStatus } from "@/types/httpStatus.enum";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { ClientError } from "@/utils/error";
-import type { JwtPayload } from "@/utils/jwt";
 import { validateRequest } from "@/utils/validation";
-import { withAuth } from "@/utils/withAuth";
+import { requireAuth } from "@/utils/auth";
 import { NextResponse, type NextRequest } from "next/server";
 
-async function handlerUpdate(
-  req: NextRequest,
-  jwtPayload: JwtPayload,
-  params: IdDTO,
+export async function GET(
+  _: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const validation = await validateRequest(req, updateUserRequestSchema);
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
 
+  try {
+    if (user.role !== "lead") {
+      throw new ClientError(
+        "You are not authorized to get user",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const { id } = await params;
+    const response = await getUser({ id });
+
+    return successResponse("User retrieved successfully", response);
+  } catch (error) {
+    if (error instanceof ClientError) {
+      const { error: errorClient } = error.toJson();
+      return errorResponse(
+        errorClient.message,
+        errorClient.status,
+        errorClient.details,
+      );
+    }
+
+    return errorResponse("Failed to retrieve user", 500, error);
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
+
+  const validation = await validateRequest(request, updateUserRequestSchema);
   if (validation instanceof NextResponse) {
     return validation;
   }
 
   try {
-    if (jwtPayload.role !== "lead") {
+    if (user.role !== "lead") {
       throw new ClientError(
         "You are not authorized to update user",
         HttpStatus.FORBIDDEN,
@@ -29,7 +61,7 @@ async function handlerUpdate(
     }
 
     const { data } = validation;
-    const { id } = params;
+    const { id } = await params;
     const response = await updateUser(data, id);
 
     return successResponse("User updated successfully", response);
@@ -46,22 +78,23 @@ async function handlerUpdate(
     return errorResponse("Failed to update user", 500, error);
   }
 }
-export const PATCH = withAuth(handlerUpdate);
 
-async function handlerDelete(
+export async function DELETE(
   _: NextRequest,
-  jwtPayload: JwtPayload,
-  params: IdDTO,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
+
   try {
-    if (jwtPayload.role !== "lead") {
+    if (user.role !== "lead") {
       throw new ClientError(
         "You are not authorized to delete user",
         HttpStatus.FORBIDDEN,
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const response = await deleteUser(id);
 
     return successResponse("User deleted successfully", response);
@@ -78,4 +111,3 @@ async function handlerDelete(
     return errorResponse("Failed to delete user", 500, error);
   }
 }
-export const DELETE = withAuth(handlerDelete);

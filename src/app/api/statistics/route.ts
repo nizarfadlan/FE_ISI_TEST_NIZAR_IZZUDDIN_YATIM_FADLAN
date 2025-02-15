@@ -1,10 +1,14 @@
 import { countTasks, countTasksByStatus } from "@/server/tasks/service";
 import { countUsers } from "@/server/users/service";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
+import { requireAuth } from "@/utils/auth";
 import { ClientError } from "@/utils/error";
-import { withAuth } from "@/utils/withAuth";
+import { NextResponse } from "next/server";
 
-async function handler() {
+export async function GET() {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
+
   try {
     const [users, tasks, taskCompleted, taskRejected] = await Promise.all([
       countUsers(),
@@ -33,5 +37,3 @@ async function handler() {
     return errorResponse("Failed to fetch statistic", 500, error);
   }
 }
-
-export const GET = withAuth(handler);

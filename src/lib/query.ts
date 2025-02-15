@@ -87,11 +87,11 @@ export function createMutationOptions<
             })
             .join("\n");
         }
-        toast.error(error.message || errorMessage || "Terjadi kesalahan", {
+        toast.error(error.message ?? errorMessage ?? "Terjadi kesalahan", {
           description: detailError,
         });
       } else {
-        toast.error(errorMessage || "Terjadi kesalahan yang tidak diketahui");
+        toast.error(errorMessage ?? "Terjadi kesalahan yang tidak diketahui");
       }
 
       onError?.(error as TError, context);

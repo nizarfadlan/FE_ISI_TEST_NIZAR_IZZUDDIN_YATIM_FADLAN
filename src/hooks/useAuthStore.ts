@@ -1,5 +1,5 @@
 import { api, apiCall } from "@/lib/axios";
-import type { ProfileResponseDTO } from "@/server/users/type";
+import type { GetUserResponseDTO } from "@/server/users/type";
 import type { ApiResponse } from "@/types";
 import { HttpStatus } from "@/types/httpStatus.enum";
 import { ClientError } from "@/utils/error";
@@ -12,7 +12,7 @@ interface LoadingState {
 }
 
 interface AuthState {
-  user: ProfileResponseDTO | null;
+  user: GetUserResponseDTO | null;
   loading: LoadingState;
   error: string | null;
   isAuthenticated: boolean;
@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (response) {
         try {
-          if (response.data?.isAuthenticated) {
+          if (response.data?.isAuthenticated && !get().user) {
             await get().fetchProfile();
           }
           set({ isAuthenticated: response.data?.isAuthenticated });
@@ -145,7 +145,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const response = (await apiCall(
         api.get("/api/users/me"),
-      )) as ApiResponse<ProfileResponseDTO>;
+      )) as ApiResponse<GetUserResponseDTO>;
 
       if (!response.success) {
         throw new ClientError(response.error.message, response.error.status);

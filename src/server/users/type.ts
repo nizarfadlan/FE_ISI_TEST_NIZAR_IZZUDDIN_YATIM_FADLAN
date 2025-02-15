@@ -33,13 +33,12 @@ export const PasswordSchema = z
     "Password must contain at least one special character",
   );
 
-export const profileResponseSchema = userSelectSchema.omit({
+export const getUserResponseSchema = userSelectSchema.omit({
   password: true,
-  deletedAt: true,
 });
-export type ProfileResponseDTO = z.infer<typeof profileResponseSchema>;
+export type GetUserResponseDTO = z.infer<typeof getUserResponseSchema>;
 
-export const getUsersResponseSchema = z.array(userSelectSchema);
+export const getUsersResponseSchema = z.array(getUserResponseSchema);
 export type GetUsersResponseDTO = z.infer<typeof getUsersResponseSchema>;
 
 export const createUserRequestSchema = userInsertSchema

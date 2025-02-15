@@ -22,6 +22,7 @@ ARG POSTGRES_PASSWORD
 ARG JWT_SECRET
 ARG JWT_REFRESH_SECRET
 
+
 RUN \
   if [ -f yarn.lock ]; then SKIP_ENV_VALIDATION=1 yarn build; \
   elif [ -f package-lock.json ]; then SKIP_ENV_VALIDATION=1 npm run build; \
@@ -45,6 +46,7 @@ COPY --from=builder /app/package.json ./package.json
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
 
 EXPOSE 3000
 

@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 
 export default function AddTask() {
-  const { showModal, closeModal } = useModalDialog();
+  const { closeModal } = useModalDialog();
   const form = useForm<CreateTaskRequestDTO>({
     resolver: zodResolver(createTaskRequestSchema),
     mode: "onChange",

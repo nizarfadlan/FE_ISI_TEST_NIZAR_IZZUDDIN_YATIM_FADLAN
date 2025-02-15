@@ -2,20 +2,24 @@ import { updatePassword } from "@/server/users/service";
 import { updatePasswordRequestSchema } from "@/server/users/type";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { ClientError } from "@/utils/error";
-import type { JwtPayload } from "@/utils/jwt";
 import { validateRequest } from "@/utils/validation";
-import { withAuth } from "@/utils/withAuth";
+import { requireAuth } from "@/utils/auth";
 import { NextResponse, type NextRequest } from "next/server";
 
-async function handlerUpdatePassword(req: NextRequest, jwtPayload: JwtPayload) {
-  const validation = await validateRequest(req, updatePasswordRequestSchema);
+export async function PATCH(request: NextRequest) {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
 
+  const validation = await validateRequest(
+    request,
+    updatePasswordRequestSchema,
+  );
   if (validation instanceof NextResponse) {
     return validation;
   }
 
   try {
-    const { userId } = jwtPayload;
+    const { userId } = user;
     const { data } = validation;
     const response = await updatePassword(data, userId);
 
@@ -33,4 +37,3 @@ async function handlerUpdatePassword(req: NextRequest, jwtPayload: JwtPayload) {
     return errorResponse("Failed to update password", 500, error);
   }
 }
-export const PATCH = withAuth(handlerUpdatePassword);

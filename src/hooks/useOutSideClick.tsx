@@ -16,6 +16,7 @@ export function useOutSideClick(
         !ref.current.contains(e.target as Node) &&
         isCollapsed
       ) {
+        console.log("click outside");
         callback();
       }
     },

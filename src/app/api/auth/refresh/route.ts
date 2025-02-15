@@ -15,8 +15,6 @@ export async function POST() {
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get(COOKIE_REFRESH_TOKEN);
 
-    console.log("refreshToken", refreshToken);
-
     if (!refreshToken) {
       return errorResponse("No refresh token found", 400);
     }

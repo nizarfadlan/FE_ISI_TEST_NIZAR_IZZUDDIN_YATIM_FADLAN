@@ -32,7 +32,9 @@ export default function AddTaskForm({ form, onSubmit }: AddTaskFormProps) {
             className="mt-1"
             placeholder="Task Title"
           />
-          {errors.title && <p>{errors.title.message}</p>}
+          {errors.title && (
+            <p className="my-1 text-red-500">{errors.title.message}</p>
+          )}
         </div>
       )}
       <div>
@@ -43,7 +45,9 @@ export default function AddTaskForm({ form, onSubmit }: AddTaskFormProps) {
           placeholder="Task Description"
           rows={2}
         />
-        {errors.description && <p>{errors.description.message}</p>}
+        {errors.description && (
+          <p className="my-1 text-red-500">{errors.description.message}</p>
+        )}
       </div>
       <div>
         <Label htmlFor="status">
@@ -58,7 +62,9 @@ export default function AddTaskForm({ form, onSubmit }: AddTaskFormProps) {
           <option value="on_progress">In Progress</option>
           <option value="done">Completed</option>
         </select>
-        {errors.status && <p>{errors.status.message}</p>}
+        {errors.status && (
+          <p className="my-1 text-red-500">{errors.status.message}</p>
+        )}
       </div>
       <div>
         <Button type="submit" className="w-full">

@@ -1,10 +1,10 @@
-import { eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, ne } from "drizzle-orm";
 import { db } from "../db";
 import type { IdDTO } from "../type";
 import type {
   CreateUserRequestDTO,
   GetUsersResponseDTO,
-  ProfileResponseDTO,
+  GetUserResponseDTO,
   UpdatePasswordRequestDTO,
   UpdateUserRequestDTO,
 } from "./type";
@@ -13,7 +13,7 @@ import { ClientError } from "@/utils/error";
 import { HttpStatus } from "@/types/httpStatus.enum";
 import { comparePassword } from "@/utils/bcrypt";
 
-export async function getProfile(data: IdDTO): Promise<ProfileResponseDTO> {
+export async function getUser(data: IdDTO): Promise<GetUserResponseDTO> {
   const { id } = data;
 
   const result = await db.query.users.findFirst({
@@ -25,6 +25,7 @@ export async function getProfile(data: IdDTO): Promise<ProfileResponseDTO> {
       role: true,
       createdAt: true,
       updatedAt: true,
+      deletedAt: true,
     },
   });
 
@@ -41,7 +42,16 @@ export async function countUsers(): Promise<number> {
 
 export async function getUsers(): Promise<GetUsersResponseDTO> {
   const result = await db.query.users.findMany({
-    where: isNull(users.deletedAt),
+    columns: {
+      id: true,
+      name: true,
+      username: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+      deletedAt: true,
+    },
+    orderBy: desc(users.createdAt),
   });
 
   return result;
@@ -63,6 +73,26 @@ export async function createUser(data: CreateUserRequestDTO): Promise<IdDTO> {
 }
 
 export async function updateUser(data: UpdateUserRequestDTO, id: string) {
+  if (data.username) {
+    const check = await db.query.users.findFirst({
+      where: and(eq(users.username, data.username), ne(users.id, id)),
+    });
+
+    if (check) {
+      throw new ClientError("Username already exists", HttpStatus.BAD_REQUEST);
+    }
+  } else {
+    delete data.username;
+  }
+
+  if (!data.name) {
+    delete data.name;
+  }
+
+  if (!data.role) {
+    delete data.role;
+  }
+
   const [user] = await db
     .update(users)
     .set(data)
@@ -103,4 +133,8 @@ export async function updatePassword(
 
 export async function deleteUser(id: string) {
   await db.update(users).set({ deletedAt: new Date() }).where(eq(users.id, id));
+}
+
+export async function restoreUser(id: string) {
+  await db.update(users).set({ deletedAt: null }).where(eq(users.id, id));
 }

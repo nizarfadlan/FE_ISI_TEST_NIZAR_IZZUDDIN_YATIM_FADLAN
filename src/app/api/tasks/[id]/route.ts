@@ -1,28 +1,27 @@
 import { deleteTask, updateTask } from "@/server/tasks/service";
 import { updateTaskRequestSchema } from "@/server/tasks/type";
-import type { IdDTO } from "@/server/type";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { ClientError } from "@/utils/error";
-import type { JwtPayload } from "@/utils/jwt";
 import { validateRequest } from "@/utils/validation";
-import { withAuth } from "@/utils/withAuth";
+import { requireAuth } from "@/utils/auth";
 import { NextResponse, type NextRequest } from "next/server";
 
-async function handlerUpdate(
-  req: NextRequest,
-  jwtPayload: JwtPayload,
-  params: IdDTO,
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const validation = await validateRequest(req, updateTaskRequestSchema);
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
 
+  const validation = await validateRequest(request, updateTaskRequestSchema);
   if (validation instanceof NextResponse) {
     return validation;
   }
 
   try {
     const { data } = validation;
-    const { id } = params;
-    const response = await updateTask(data, id, jwtPayload);
+    const { id } = await params;
+    const response = await updateTask(data, id, user);
 
     return successResponse("Task updated successfully", response);
   } catch (error) {
@@ -38,15 +37,17 @@ async function handlerUpdate(
     return errorResponse("Failed to update task", 500, error);
   }
 }
-export const PATCH = withAuth(handlerUpdate);
 
-async function handlerDelete(
+export async function DELETE(
   _: NextRequest,
-  jwtPayload: JwtPayload,
-  params: IdDTO,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
+
   try {
-    await deleteTask(params, jwtPayload.userId);
+    const { id } = await params;
+    await deleteTask({ id }, user.userId);
 
     return successResponse("Task deleted successfully");
   } catch (error) {
@@ -62,4 +63,3 @@ async function handlerDelete(
     return errorResponse("Failed to delete task", 500, error);
   }
 }
-export const DELETE = withAuth(handlerDelete);

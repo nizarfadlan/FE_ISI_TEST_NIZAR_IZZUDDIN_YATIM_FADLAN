@@ -21,7 +21,7 @@ import type { IdDTO } from "../type";
 export function useGetTasks(
   options?: QueryOptions<ApiResponse<GetTasksResponseDTO>>,
 ) {
-  return useQuery({
+  return useQuery<ApiResponse<GetTasksResponseDTO>>({
     queryKey: ["tasks"],
     queryFn: async () => {
       const result = (await apiCall(

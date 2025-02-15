@@ -1,13 +1,15 @@
 import { errorResponse, successResponse } from "@/utils/apiResponse";
-import { getProfile } from "@/server/users/service";
-import { withAuth } from "@/utils/withAuth";
-import type { JwtPayload } from "@/utils/jwt";
-import type { NextRequest } from "next/server";
+import { getUser } from "@/server/users/service";
+import { requireAuth } from "@/utils/auth";
+import { NextResponse } from "next/server";
 import { ClientError } from "@/utils/error";
 
-async function handler(_: NextRequest, jwtPayload: JwtPayload) {
+export async function GET() {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
+
   try {
-    const profile = await getProfile({ id: jwtPayload.userId });
+    const profile = await getUser({ id: user.userId });
     return successResponse("Profile fetched successfully", profile);
   } catch (error) {
     if (error instanceof ClientError) {
@@ -22,5 +24,3 @@ async function handler(_: NextRequest, jwtPayload: JwtPayload) {
     return errorResponse("Failed to fetch profile", 500, error);
   }
 }
-
-export const GET = withAuth(handler);

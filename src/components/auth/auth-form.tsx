@@ -44,7 +44,7 @@ export default function AuthForm() {
   };
 
   if (loading.auth) {
-    return <Loading text="Logging in..." className="text-black" />;
+    return <Loading text="Loading..." className="text-black" />;
   }
 
   return (

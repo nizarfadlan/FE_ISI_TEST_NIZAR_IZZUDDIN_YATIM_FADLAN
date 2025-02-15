@@ -21,7 +21,10 @@ export function errorResponse(
     error: { message, status },
   };
 
-  if (details && !(details instanceof ClientError)) {
+  if (
+    details &&
+    !(details instanceof ClientError || details instanceof Error)
+  ) {
     errorPayload.error.details = details;
   }
 

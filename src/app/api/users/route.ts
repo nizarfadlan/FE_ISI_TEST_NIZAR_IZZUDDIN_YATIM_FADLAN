@@ -6,14 +6,16 @@ import {
 import { HttpStatus } from "@/types/httpStatus.enum";
 import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { ClientError } from "@/utils/error";
-import type { JwtPayload } from "@/utils/jwt";
 import { validateRequest } from "@/utils/validation";
-import { withAuth } from "@/utils/withAuth";
+import { requireAuth } from "@/utils/auth";
 import { NextResponse, type NextRequest } from "next/server";
 
-async function handlerList(_: NextRequest, jwtPayload: JwtPayload) {
+export async function GET() {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
+
   try {
-    if (jwtPayload.role !== "lead") {
+    if (user.role !== "lead") {
       throw new ClientError(
         "You are not authorized to create user",
         HttpStatus.FORBIDDEN,
@@ -26,17 +28,18 @@ async function handlerList(_: NextRequest, jwtPayload: JwtPayload) {
     return errorResponse("Failed to fetch users", 500, error);
   }
 }
-export const GET = withAuth(handlerList);
 
-async function handlerCreate(req: NextRequest, jwtPayload: JwtPayload) {
-  const validation = await validateRequest(req, createUserRequestSchema);
+export async function POST(request: NextRequest) {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
 
+  const validation = await validateRequest(request, createUserRequestSchema);
   if (validation instanceof NextResponse) {
     return validation;
   }
 
   try {
-    if (jwtPayload.role !== "lead") {
+    if (user.role !== "lead") {
       throw new ClientError(
         "You are not authorized to create user",
         HttpStatus.FORBIDDEN,
@@ -61,17 +64,17 @@ async function handlerCreate(req: NextRequest, jwtPayload: JwtPayload) {
   }
 }
 
-export const POST = withAuth(handlerCreate);
+export async function PATCH(request: NextRequest) {
+  const user = await requireAuth();
+  if (user instanceof NextResponse) return user;
 
-async function handlerUpdate(req: NextRequest, jwtPayload: JwtPayload) {
-  const validation = await validateRequest(req, updateUserRequestSchema);
-
+  const validation = await validateRequest(request, updateUserRequestSchema);
   if (validation instanceof NextResponse) {
     return validation;
   }
 
   try {
-    const { userId } = jwtPayload;
+    const { userId } = user;
     const { data } = validation;
     const response = await updateUser(data, userId);
 
@@ -89,4 +92,3 @@ async function handlerUpdate(req: NextRequest, jwtPayload: JwtPayload) {
     return errorResponse("Failed to update user", 500, error);
   }
 }
-export const PATCH = withAuth(handlerUpdate);

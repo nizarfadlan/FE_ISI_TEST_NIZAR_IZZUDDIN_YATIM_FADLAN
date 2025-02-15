@@ -13,8 +13,8 @@ import { validateRequest } from "@/utils/validation";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function POST(req: NextRequest) {
-  const validation = await validateRequest(req, loginFormRequestSchema);
+export async function POST(request: NextRequest) {
+  const validation = await validateRequest(request, loginFormRequestSchema);
 
   if (validation instanceof NextResponse) {
     return validation;

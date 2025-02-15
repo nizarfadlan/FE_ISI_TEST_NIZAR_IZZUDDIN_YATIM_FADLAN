@@ -1,9 +1,10 @@
 "use client";
 
 import AuthForm from "@/components/auth/auth-form";
+import Loading from "@/components/loading";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 export default function LoginPage() {
   const navigate = useRouter();
@@ -25,7 +26,11 @@ export default function LoginPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
-          <AuthForm />
+          <Suspense
+            fallback={<Loading text="Loading..." className="text-black" />}
+          >
+            <AuthForm />
+          </Suspense>
         </div>
       </div>
     </div>
