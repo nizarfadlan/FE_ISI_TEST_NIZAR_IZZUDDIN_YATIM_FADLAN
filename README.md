@@ -9,7 +9,7 @@ This is a simple TODO list application that allows users to add, edit, and delet
 1. Clone the repository
 
 ```bash
-git clone
+git clone https://github.com/nizarfadlan/FE_ISI_TEST_NIZAR_IZZUDDIN_YATIM_FADLAN
 ```
 
 2. Install the dependencies
