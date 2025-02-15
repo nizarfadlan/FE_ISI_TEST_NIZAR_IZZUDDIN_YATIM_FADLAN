@@ -153,12 +153,14 @@ export default function Tasks() {
           <div className="flex flex-col gap-4 md:flex-row">
             {TaskStatusValues.map((status) => (
               <div key={status} className="flex-1 rounded-md bg-gray-100 p-2">
-                <h3 className="mb-2 text-lg font-semibold">
+                <h3 className="my-2 text-center text-lg font-semibold">
                   {toSentenceCase(status)}
                 </h3>
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <TodoItemSkeleton key={index} />
-                ))}
+                <div className="flex flex-col gap-2">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <TodoItemSkeleton key={index} />
+                  ))}
+                </div>
               </div>
             ))}
           </div>
