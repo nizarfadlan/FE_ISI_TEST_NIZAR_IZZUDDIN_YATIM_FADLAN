@@ -11,7 +11,6 @@ import {
 } from "@/server/tasks/type";
 import { Plus, RefreshCcw } from "lucide-react";
 import { useCallback } from "react";
-import AddTask from "./add-task";
 import { ModalDialog } from "@/components/modal/modal-dialog";
 import { TaskStatusValues, type TaskStatus } from "@/server/db/schema";
 import Loading from "@/components/loading";
@@ -31,8 +30,11 @@ import { TouchBackend } from "react-dnd-touch-backend";
 import TaskColumn from "@/components/dashboard/tasks/task-column";
 import { toSentenceCase } from "@/utils";
 import useMedia from "@/hooks/useMedia";
+import { useAuthStore } from "@/hooks/useAuthStore";
+import AddTask from "./add-task";
 
 export default function Tasks() {
+  const { user } = useAuthStore();
   const { showModal } = useModalDialog();
   const { data, isLoading, isFetching, refetch } = useGetTasks();
 
@@ -90,20 +92,21 @@ export default function Tasks() {
       <Card
         title="Tasks"
         description="List of tasks"
-        IconButton={Plus}
-        textButton="Create Task"
-        callbackButton={() =>
-          showModal({
-            title: "Create Task",
-            content: <AddTask />,
-          })
-        }
         anotherChildHeader={
           <Button onClick={() => refetch()} variant="outline">
             <RefreshCcw />
             Refresh
           </Button>
         }
+        {...(user?.role === "lead" && {
+          IconButton: Plus,
+          textButton: "Create Task",
+          callbackButton: () =>
+            showModal({
+              title: "Create Task",
+              content: <AddTask />,
+            }),
+        })}
       >
         {(isPendingUpdateStatus || isPendingDelete || isPendingUpdate) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-100 backdrop-blur-sm transition-opacity duration-200">
