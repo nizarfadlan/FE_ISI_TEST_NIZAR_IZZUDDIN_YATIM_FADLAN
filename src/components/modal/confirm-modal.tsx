@@ -48,6 +48,7 @@ export function ConfirmModal() {
               closeDialog();
               onCancel?.();
             }}
+            variant="outline"
           >
             {cancelLabel}
           </Button>

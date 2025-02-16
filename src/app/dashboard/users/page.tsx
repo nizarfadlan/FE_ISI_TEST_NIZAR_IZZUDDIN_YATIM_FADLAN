@@ -20,12 +20,15 @@ import { toast } from "sonner";
 import Loading from "@/components/loading";
 import { queryClient } from "@/lib/query";
 import { Button } from "@/components/button";
+import { useConfirmDialog } from "@/hooks/useConfirmDialog";
+import { ConfirmModal } from "@/components/modal/confirm-modal";
 
 export default function Users() {
   const { showModal } = useModalDialog();
   const { data, isLoading, isFetching, refetch } = useGetUsers();
   const { user, loading } = useAuthStore();
   const navigate = useRouter();
+  const { showDialog: showDialogConfirm } = useConfirmDialog();
 
   useEffect(() => {
     if (user && user.role !== "lead" && !loading.auth) {
@@ -95,7 +98,13 @@ export default function Users() {
         <UserList
           users={data.data}
           onDelete={(id: string) => {
-            mutateDelete({ id });
+            showDialogConfirm({
+              title: "Delete User",
+              description: "Are you sure you want to delete this user?",
+              onConfirm: () => {
+                mutateDelete({ id });
+              },
+            });
           }}
           onEdit={(id: string) => {
             navigate.push(`/dashboard/users/${id}`);
@@ -108,6 +117,7 @@ export default function Users() {
         <UserListSkeleton />
       )}
       <ModalDialog />
+      <ConfirmModal />
     </Card>
   );
 }
